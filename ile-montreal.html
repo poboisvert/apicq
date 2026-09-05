@@ -145,7 +145,7 @@
       <a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles/">APCIQ</a>
       et de l’<a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/">archive</a>.
     </p>
-    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn 9 mois, sept. 2026 – mai 2027 (pointillés)</p>
+    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn 9 mois, sept. 2026 – mai 2027 · janvier omis des graphiques (renouvellement des inscriptions)</p>
 
     <div class="filters" id="filters"></div>
     <p class="meta legend-buy">
@@ -178,7 +178,7 @@
     <div class="chart-wrap"><canvas id="chart-ventes"></canvas></div>
 
     <h2>Inscriptions en vigueur</h2>
-    <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal</p>
+    <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal · janvier retiré (inscriptions expirées en décembre, renouvelées en février)</p>
     <div class="chart-wrap" style="height:320px"><canvas id="chart-inscriptions"></canvas></div>
     <p class="meta" id="buy-months"></p>
 
@@ -279,7 +279,7 @@
 
   <script>
     const TIMELINE = ["09/19","10/19","11/19","12/19","01/20","02/20","03/20","05/20","06/20","07/20","08/20","09/20","10/20","11/20","12/20","01/21","02/21","03/21","04/21","05/21","06/21","07/21","08/21","09/21","10/21","11/21","12/21","01/22","02/22","03/22","04/22","05/22","06/22","07/22","08/22","09/22","10/22","11/22","12/22","01/23","02/23","04/23","05/23","06/23","07/23","08/23","09/23","10/23","11/23","12/23","01/24","02/24","03/24","04/24","05/24","06/24","07/24","08/24","09/24","10/24","11/24","12/24","01/25","02/25","03/25","04/25","05/25","06/25","07/25","08/25","09/25","10/25","11/25","12/25","01/26","02/26","03/26","04/26","05/26","06/26","07/26","08/26"];
-    const SEASON = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août"];
+    const SEASON = ["Fév","Mar","Avr","Mai","Juin","Juil","Août"];
     const SEASON_YEARS = [2021, 2022, 2024, 2025, 2026];
     const COPRO = {
       ventes: [766,816,831,718,663,931,992,518,856,987,999,977,1083,996,856,750,1075,1426,1401,1226,1014,835,751,842,935,934,798,652,967,1294,1145,1106,838,620,520,483,532,559,466,366,617,766,982,743,643,553,583,539,602,443,402,800,852,968,963,807,747,632,664,794,812,675,596,845,1013,1051,1007,934,753,645,650,767,724,570,493,791,993,972,924,783,582,562],
@@ -314,8 +314,29 @@
     function fmtInt(n) { return n.toLocaleString("fr-CA"); }
     function fmtPrice(n) { return `${n.toLocaleString("fr-CA")} $`; }
 
+    function isJanuaryLabel(label) {
+      return String(label).startsWith("01/");
+    }
+
+    const CHART_TIMELINE = TIMELINE.filter((label) => !isJanuaryLabel(label));
+
+    function chartHistory(values) {
+      return values.filter((_, idx) => !isJanuaryLabel(TIMELINE[idx]));
+    }
+
+    function chartForecastLabels() {
+      return (FORECAST.labels || []).filter((label) => !isJanuaryLabel(label));
+    }
+
+    function chartForecastValues(kind, field) {
+      return (FORECAST.labels || [])
+        .map((label, idx) => ({ label, value: FORECAST.forecast[kind][field][idx] }))
+        .filter((item) => !isJanuaryLabel(item.label))
+        .map((item) => item.value);
+    }
+
     function seasonal(year, field, kind) {
-      return [1,2,3,4,5,6,7,8].map((month) => {
+      return [2,3,4,5,6,7,8].map((month) => {
         const row = ROWS.find((item) => item.year === year && item.month === month);
         return row ? row[kind][field] : null;
       });
@@ -361,6 +382,7 @@
       (FORECAST.labels || []).forEach((label, idx) => {
         insc = FORECAST.forecast.copropriete.inscriptions[idx];
         const { year, month } = parseLabel(label);
+        if (month === 1) return;
         labels.push(label);
         listings.push(insc);
         implied.push(impliedCondoDom(month, insc));
@@ -373,6 +395,7 @@
           year += 1;
         }
         insc = Math.max(4000, insc + CONDO_SEASON[month].delta);
+        if (month === 1) continue;
         labels.push(makeLabel(year, month));
         listings.push(Math.round(insc));
         implied.push(impliedCondoDom(month, insc));
@@ -425,9 +448,9 @@
 
     function inscriptionLabels() {
       if (state.view !== "timeline" || state.category === "plex") {
-        return TIMELINE.concat(FORECAST.labels || []);
+        return CHART_TIMELINE.concat(chartForecastLabels());
       }
-      return TIMELINE.concat(condoInventoryPath().labels);
+      return CHART_TIMELINE.concat(condoInventoryPath().labels);
     }
 
     function drawBuyBands(ctx, chartArea, xScale, bands, color) {
@@ -452,7 +475,7 @@
       beforeDraw(chart) {
         if (!chart.options.plugins.buyZone || !chart.options.plugins.buyZone.enabled) return;
         const path = condoInventoryPath();
-        const offset = TIMELINE.length;
+        const offset = CHART_TIMELINE.length;
         const { ctx, chartArea, scales } = chart;
         if (!chartArea || !scales.x) return;
         const soft = bandsFromFlags(flagsFrom(path.implied, BUY_SOFT)).map(([a, b]) => [a + offset, b + offset]);
@@ -465,7 +488,7 @@
       afterDraw(chart) {
         if (!chart.options.plugins.buyZone || !chart.options.plugins.buyZone.enabled) return;
         const path = condoInventoryPath();
-        const offset = TIMELINE.length;
+        const offset = CHART_TIMELINE.length;
         const softAt = firstAtLeast(path.implied, BUY_SOFT);
         const hardAt = firstAtLeast(path.implied, BUY_HARD);
         const { ctx, chartArea, scales } = chart;
@@ -493,11 +516,11 @@
 
     function forecastLine(kind, field, color, label) {
       const last = FORECAST.last_values[kind][field];
-      const future = FORECAST.forecast[kind][field] || [];
+      const future = chartForecastValues(kind, field);
       if (last == null || !future.length) return null;
       return {
         label,
-        data: Array(TIMELINE.length - 1).fill(null).concat([last, ...future]),
+        data: Array(CHART_TIMELINE.length - 1).fill(null).concat([last, ...future]),
         color,
         dash: [7, 5],
         points: true
@@ -528,14 +551,14 @@
       }
       const out = [];
       if (state.category !== "plex") {
-        out.push({ label: "Copropriété", data: padTo(COPRO[key], labels), color: "#1f4e79" });
+        out.push({ label: "Copropriété", data: padTo(chartHistory(COPRO[key]), labels), color: "#1f4e79" });
         const forecast = forecastLine("copropriete", key, "#1f4e79", "Copro prévision");
         if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
         if (field === "i") {
           const path = condoInventoryPath();
-          const official = (FORECAST.labels || []).length;
+          const official = chartForecastLabels().length;
           if (path.listings.length > official) {
-            const projected = Array(TIMELINE.length + official - 1).fill(null).concat(
+            const projected = Array(CHART_TIMELINE.length + official - 1).fill(null).concat(
               [path.listings[official - 1], ...path.listings.slice(official)]
             );
             out.push({
@@ -548,7 +571,7 @@
         }
       }
       if (state.category !== "copro") {
-        out.push({ label: "Plex (2-5)", data: padTo(PLEX[key], labels), color: "#2a7a4b" });
+        out.push({ label: "Plex (2-5)", data: padTo(chartHistory(PLEX[key]), labels), color: "#2a7a4b" });
         const forecast = forecastLine("plex", key, "#2a7a4b", "Plex prévision");
         if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
       }
@@ -571,7 +594,7 @@
     }
 
     function upsertChart(id, field, opts) {
-      const labels = state.view === "seasonal" ? SEASON : (id === "chart-inscriptions" ? inscriptionLabels() : TIMELINE.concat(FORECAST.labels || []));
+      const labels = state.view === "seasonal" ? SEASON : (id === "chart-inscriptions" ? inscriptionLabels() : CHART_TIMELINE.concat(chartForecastLabels()));
       const datasets = series(field, labels).map(lineDataset);
       const buyEnabled = id === "chart-inscriptions" && state.view === "timeline" && state.category !== "plex";
       const config = {
@@ -590,7 +613,7 @@
               ticks: {
                 maxRotation: 0,
                 autoSkip: true,
-                maxTicksLimit: state.view === "seasonal" ? 8 : (id === "chart-inscriptions" ? 20 : 16),
+                maxTicksLimit: state.view === "seasonal" ? 7 : (id === "chart-inscriptions" ? 20 : 16),
                 font: { size: 10 }
               },
               grid: { color: "#eeeae3" }
@@ -623,7 +646,7 @@
         ["category", "copro", "Copropriété"],
         ["category", "plex", "Plex (2-5)"],
         ["view", "timeline", "Chronologie"],
-        ["view", "seasonal", "Jan–août 2021–26"]
+        ["view", "seasonal", "Fév–août 2021–26"]
       ];
       document.getElementById("filters").innerHTML = filters.map(([key, value, label]) =>
         `<button class="pill${state[key] === value ? " active" : ""}" data-key="${key}" data-value="${value}">${label}</button>`
@@ -635,7 +658,8 @@
     }
 
     function forecastRows() {
-      return (FORECAST.labels || []).map((label, idx) => {
+      return (FORECAST.labels || []).filter((label) => !isJanuaryLabel(label)).map((label) => {
+        const idx = FORECAST.labels.indexOf(label);
         const [mm, yy] = label.split("/");
         return {
           year: 2000 + Number(yy),
@@ -714,15 +738,15 @@
       renderPills();
       document.getElementById("cap-ventes").textContent =
         state.view === "seasonal"
-          ? "Transactions Centris du mois · Île de Montréal · janvier–août, années complètes seulement"
+          ? "Transactions Centris du mois · Île de Montréal · février–août, années complètes seulement"
           : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée 9 mois jusqu’en mai 2027";
       const path = condoInventoryPath();
       const softAt = firstAtLeast(path.implied, BUY_SOFT);
       const hardAt = firstAtLeast(path.implied, BUY_HARD);
       const showBuy = state.view === "timeline" && state.category !== "plex";
       document.getElementById("cap-inscriptions").textContent = showBuy
-        ? "Offre active condo · prévision Ridge 9 mois jusqu’en mai 2027. Au-delà, tendance saisonnière. Souple = 90 j, ferme = 120 j."
-        : "Offre active en fin de mois · Île de Montréal";
+        ? "Offre active condo · prévision Ridge 9 mois jusqu’en mai 2027, sans janvier. Au-delà, tendance saisonnière. Souple = 90 j, ferme = 120 j."
+        : "Offre active en fin de mois · Île de Montréal · janvier retiré des graphiques";
       if (showBuy && softAt >= 0) {
         const softMonths = groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_SOFT));
         const hardMonths = hardAt >= 0 ? groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_HARD)) : [];
