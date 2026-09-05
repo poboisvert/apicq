@@ -119,13 +119,15 @@
       gap: 8px;
       margin: 0 0 16px;
     }
-    .legend-buy .swatch {
+    .legend-buy .swatch,
+    .legend-buy .swatch-hard {
       width: 22px;
       height: 12px;
-      background: rgba(42, 122, 75, 0.28);
-      border: 1px solid rgba(42, 122, 75, 0.45);
       flex: 0 0 auto;
+      border: 1px solid rgba(42, 122, 75, 0.45);
     }
+    .legend-buy .swatch { background: rgba(42, 122, 75, 0.22); }
+    .legend-buy .swatch-hard { background: rgba(26, 92, 52, 0.40); }
     @media (max-width: 800px) {
       .stats, .split { grid-template-columns: 1fr 1fr; }
     }
@@ -148,7 +150,10 @@
     <div class="filters" id="filters"></div>
     <p class="meta legend-buy">
       <span class="swatch"></span>
-      Zone verte : bon moment pour acheter — plus de 7 mois d’inventaire (inscriptions ÷ ventes) et au moins 55 jours sur le marché.
+      Condo souple ≥ 90 jours
+      <span class="swatch-hard"></span>
+      Condo ferme ≥ 120 jours
+      — sur Inscriptions en vigueur, selon l’offre qui continue de monter.
     </p>
 
     <div class="stats">
@@ -173,8 +178,9 @@
     <div class="chart-wrap"><canvas id="chart-ventes"></canvas></div>
 
     <h2>Inscriptions en vigueur</h2>
-    <p class="meta">Offre active en fin de mois · Île de Montréal</p>
-    <div class="chart-wrap"><canvas id="chart-inscriptions"></canvas></div>
+    <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal</p>
+    <div class="chart-wrap" style="height:320px"><canvas id="chart-inscriptions"></canvas></div>
+    <p class="meta" id="buy-months"></p>
 
     <div class="split">
       <div>
@@ -315,54 +321,75 @@
       });
     }
 
-    const BUY_INVENTORY = 7;
-    const BUY_DAYS = 55;
+    const MONTH_FR = ["", "janv.", "fév.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+    const CONDO_SEASON = {
+      1: { dom: 82.0, insc: 4809, delta: 175 },
+      2: { dom: 64.8, insc: 5208, delta: 448 },
+      3: { dom: 60.0, insc: 5912, delta: 412 },
+      4: { dom: 57.5, insc: 5780, delta: 233 },
+      5: { dom: 54.2, insc: 5890, delta: 167 },
+      6: { dom: 54.0, insc: 5865, delta: -27 },
+      7: { dom: 60.8, insc: 5668, delta: -217 },
+      8: { dom: 62.5, insc: 5661, delta: -32 },
+      9: { dom: 62.7, insc: 5573, delta: 341 },
+      10: { dom: 58.7, insc: 5693, delta: 56 },
+      11: { dom: 63.7, insc: 5533, delta: -211 },
+      12: { dom: 72.7, insc: 4877, delta: -724 }
+    };
+    const BUY_SOFT = 90;
+    const BUY_HARD = 120;
 
-    function categoryPoints(kind) {
-      const hist = kind === "copro" ? COPRO : PLEX;
-      const key = kind === "copro" ? "copropriete" : "plex";
-      const points = hist.ventes.map((ventes, idx) => ({
-        ventes,
-        inscriptions: hist.inscriptions[idx],
-        jours: hist.jours[idx]
-      }));
-      const future = FORECAST.forecast[key];
-      if (future && future.ventes) {
-        future.ventes.forEach((ventes, idx) => {
-          points.push({
-            ventes,
-            inscriptions: future.inscriptions[idx],
-            jours: future.jours[idx]
-          });
-        });
-      }
-      return points;
+    function parseLabel(label) {
+      const [mm, yy] = label.split("/");
+      return { month: Number(mm), year: 2000 + Number(yy) };
     }
 
-    function isBuyMonth(point) {
-      if (!point || !point.ventes) return false;
-      return (point.inscriptions / point.ventes) >= BUY_INVENTORY && point.jours >= BUY_DAYS;
+    function makeLabel(year, month) {
+      return `${String(month).padStart(2, "0")}/${String(year).slice(2)}`;
     }
 
-    function buyFlags() {
-      const kinds = [];
-      if (state.category !== "plex") kinds.push("copro");
-      if (state.category !== "copro") kinds.push("plex");
-      const length = TIMELINE.length + (FORECAST.labels || []).length;
-      const flags = Array(length).fill(false);
-      kinds.forEach((kind) => {
-        categoryPoints(kind).forEach((point, idx) => {
-          if (isBuyMonth(point)) flags[idx] = true;
-        });
+    function impliedCondoDom(month, insc) {
+      const season = CONDO_SEASON[month];
+      return season.dom + 0.012 * (insc - season.insc);
+    }
+
+    function condoInventoryPath() {
+      const labels = [];
+      const listings = [];
+      const implied = [];
+      let insc = COPRO.inscriptions[COPRO.inscriptions.length - 1];
+      (FORECAST.labels || []).forEach((label, idx) => {
+        insc = FORECAST.forecast.copropriete.inscriptions[idx];
+        const { year, month } = parseLabel(label);
+        labels.push(label);
+        listings.push(insc);
+        implied.push(impliedCondoDom(month, insc));
       });
-      for (let i = 1; i < flags.length - 1; i += 1) {
-        if (!flags[i] && flags[i - 1] && flags[i + 1]) flags[i] = true;
+      let { year, month } = parseLabel(labels[labels.length - 1]);
+      while (year < 2030 || (year === 2030 && month < 4)) {
+        month += 1;
+        if (month === 13) {
+          month = 1;
+          year += 1;
+        }
+        insc = Math.max(4000, insc + CONDO_SEASON[month].delta);
+        labels.push(makeLabel(year, month));
+        listings.push(Math.round(insc));
+        implied.push(impliedCondoDom(month, insc));
       }
-      return flags;
+      return { labels, listings, implied };
     }
 
-    function buyBands() {
-      const flags = buyFlags();
+    function firstAtLeast(values, threshold) {
+      const idx = values.findIndex((value) => value >= threshold);
+      return idx;
+    }
+
+    function flagsFrom(values, threshold) {
+      return values.map((value) => value >= threshold);
+    }
+
+    function bandsFromFlags(flags) {
       const bands = [];
       let start = null;
       flags.forEach((flag, idx) => {
@@ -376,25 +403,84 @@
       return bands;
     }
 
+    function groupMonthRuns(labels, flags) {
+      const runs = [];
+      let start = null;
+      flags.forEach((flag, idx) => {
+        if (flag && start === null) start = idx;
+        if (!flag && start !== null) {
+          runs.push([start, idx - 1]);
+          start = null;
+        }
+      });
+      if (start !== null) runs.push([start, flags.length - 1]);
+      return runs.map(([from, to]) => {
+        const a = parseLabel(labels[from]);
+        const b = parseLabel(labels[to]);
+        const left = `${MONTH_FR[a.month]} ${a.year}`;
+        const right = `${MONTH_FR[b.month]} ${b.year}`;
+        return from === to ? left : `${left} – ${right}`;
+      });
+    }
+
+    function inscriptionLabels() {
+      if (state.view !== "timeline" || state.category === "plex") {
+        return TIMELINE.concat(FORECAST.labels || []);
+      }
+      return TIMELINE.concat(condoInventoryPath().labels);
+    }
+
+    function drawBuyBands(ctx, chartArea, xScale, bands, color) {
+      bands.forEach(([start, end]) => {
+        const startPx = xScale.getPixelForValue(start);
+        const endPx = xScale.getPixelForValue(end);
+        const step = start === end
+          ? Math.abs(xScale.getPixelForValue(start + 1) - startPx) || 16
+          : (endPx - startPx) / (end - start);
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          Math.min(startPx, endPx) - step / 2,
+          chartArea.top,
+          Math.abs(endPx - startPx) + step,
+          chartArea.bottom - chartArea.top
+        );
+      });
+    }
+
     const buyZonePlugin = {
       id: "buyZone",
       beforeDraw(chart) {
-        if (state.view !== "timeline") return;
+        if (!chart.options.plugins.buyZone || !chart.options.plugins.buyZone.enabled) return;
+        const path = condoInventoryPath();
+        const offset = TIMELINE.length;
         const { ctx, chartArea, scales } = chart;
         if (!chartArea || !scales.x) return;
-        const x = scales.x;
+        const soft = bandsFromFlags(flagsFrom(path.implied, BUY_SOFT)).map(([a, b]) => [a + offset, b + offset]);
+        const hard = bandsFromFlags(flagsFrom(path.implied, BUY_HARD)).map(([a, b]) => [a + offset, b + offset]);
         ctx.save();
-        ctx.fillStyle = "rgba(42, 122, 75, 0.16)";
-        buyBands().forEach(([start, end]) => {
-          const startPx = x.getPixelForValue(start);
-          const endPx = x.getPixelForValue(end);
-          const step = start === end
-            ? Math.abs(x.getPixelForValue(start + 1) - startPx) || 16
-            : (endPx - startPx) / (end - start);
-          const left = Math.min(startPx, endPx) - step / 2;
-          const width = Math.abs(endPx - startPx) + step;
-          ctx.fillRect(left, chartArea.top, width, chartArea.bottom - chartArea.top);
-        });
+        drawBuyBands(ctx, chartArea, scales.x, soft, "rgba(42, 122, 75, 0.16)");
+        drawBuyBands(ctx, chartArea, scales.x, hard, "rgba(26, 92, 52, 0.32)");
+        ctx.restore();
+      },
+      afterDraw(chart) {
+        if (!chart.options.plugins.buyZone || !chart.options.plugins.buyZone.enabled) return;
+        const path = condoInventoryPath();
+        const offset = TIMELINE.length;
+        const softAt = firstAtLeast(path.implied, BUY_SOFT);
+        const hardAt = firstAtLeast(path.implied, BUY_HARD);
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea || !scales.x) return;
+        ctx.save();
+        ctx.fillStyle = "#1a5c34";
+        ctx.font = "12px Helvetica Neue, Helvetica, Arial, sans-serif";
+        if (softAt >= 0) {
+          const when = parseLabel(path.labels[softAt]);
+          ctx.fillText(`Souple · ${MONTH_FR[when.month]} ${when.year}`, scales.x.getPixelForValue(softAt + offset) + 4, chartArea.top + 16);
+        }
+        if (hardAt >= 0) {
+          const when = parseLabel(path.labels[hardAt]);
+          ctx.fillText(`Ferme · ${MONTH_FR[when.month]} ${when.year}`, scales.x.getPixelForValue(hardAt + offset) + 4, chartArea.top + 34);
+        }
         ctx.restore();
       }
     };
@@ -418,7 +504,12 @@
       };
     }
 
-    function series(field) {
+    function padTo(values, labels) {
+      if (values.length >= labels.length) return values.slice(0, labels.length);
+      return values.concat(Array(labels.length - values.length).fill(null));
+    }
+
+    function series(field, labels) {
       const map = { v: "ventes", i: "inscriptions", p: "prix", j: "jours" };
       const key = map[field];
       if (state.view === "seasonal") {
@@ -437,14 +528,26 @@
       }
       const out = [];
       if (state.category !== "plex") {
-        out.push({ label: "Copropriété", data: padHistory(COPRO[key]), color: "#1f4e79" });
+        out.push({ label: "Copropriété", data: padTo(COPRO[key], labels), color: "#1f4e79" });
         const forecast = forecastLine("copropriete", key, "#1f4e79", "Copro prévision");
-        if (forecast) out.push(forecast);
+        if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
+        if (field === "i") {
+          const path = condoInventoryPath();
+          const projected = Array(TIMELINE.length - 1).fill(null).concat(
+            [COPRO.inscriptions[COPRO.inscriptions.length - 1], ...path.listings]
+          );
+          out.push({
+            label: "Copro offre projetée",
+            data: padTo(projected, labels),
+            color: "#5b8fb8",
+            dash: [3, 3]
+          });
+        }
       }
       if (state.category !== "copro") {
-        out.push({ label: "Plex (2-5)", data: padHistory(PLEX[key]), color: "#2a7a4b" });
+        out.push({ label: "Plex (2-5)", data: padTo(PLEX[key], labels), color: "#2a7a4b" });
         const forecast = forecastLine("plex", key, "#2a7a4b", "Plex prévision");
-        if (forecast) out.push(forecast);
+        if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
       }
       return out;
     }
@@ -465,8 +568,9 @@
     }
 
     function upsertChart(id, field, opts) {
-      const labels = state.view === "seasonal" ? SEASON : TIMELINE.concat(FORECAST.labels || []);
-      const datasets = series(field).map(lineDataset);
+      const labels = state.view === "seasonal" ? SEASON : (id === "chart-inscriptions" ? inscriptionLabels() : TIMELINE.concat(FORECAST.labels || []));
+      const datasets = series(field, labels).map(lineDataset);
+      const buyEnabled = id === "chart-inscriptions" && state.view === "timeline" && state.category !== "plex";
       const config = {
         type: "line",
         data: { labels, datasets },
@@ -475,14 +579,15 @@
           maintainAspectRatio: false,
           interaction: { mode: "index", intersect: false },
           plugins: {
-            legend: { labels: { boxWidth: 12, font: { size: 11 } } }
+            legend: { labels: { boxWidth: 12, font: { size: 11 } } },
+            buyZone: { enabled: buyEnabled }
           },
           scales: {
             x: {
               ticks: {
                 maxRotation: 0,
                 autoSkip: true,
-                maxTicksLimit: state.view === "seasonal" ? 8 : 16,
+                maxTicksLimit: state.view === "seasonal" ? 8 : (id === "chart-inscriptions" ? 20 : 16),
                 font: { size: 10 }
               },
               grid: { color: "#eeeae3" }
@@ -502,6 +607,7 @@
         charts[id].data.labels = labels;
         charts[id].data.datasets = datasets;
         charts[id].options.scales.y.beginAtZero = opts.beginAtZero !== false;
+        charts[id].options.plugins.buyZone = { enabled: buyEnabled };
         charts[id].update();
       } else {
         charts[id] = new Chart(document.getElementById(id), config);
@@ -606,7 +712,27 @@
       document.getElementById("cap-ventes").textContent =
         state.view === "seasonal"
           ? "Transactions Centris du mois · Île de Montréal · janvier–août, années complètes seulement"
-          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée jusqu’en fév. 2027. Vert = bon moment pour acheter.";
+          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée jusqu’en fév. 2027";
+      const path = condoInventoryPath();
+      const softAt = firstAtLeast(path.implied, BUY_SOFT);
+      const hardAt = firstAtLeast(path.implied, BUY_HARD);
+      const showBuy = state.view === "timeline" && state.category !== "plex";
+      document.getElementById("cap-inscriptions").textContent = showBuy
+        ? "Offre active condo · l’inventaire monte encore; les jours estimés suivent l’offre et la saison 2023–26. Souple = 90 j, ferme = 120 j."
+        : "Offre active en fin de mois · Île de Montréal";
+      if (showBuy && softAt >= 0) {
+        const softMonths = groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_SOFT));
+        const hardMonths = hardAt >= 0 ? groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_HARD)) : [];
+        const softWhen = parseLabel(path.labels[softAt]);
+        const hardWhen = hardAt >= 0 ? parseLabel(path.labels[hardAt]) : null;
+        document.getElementById("buy-months").textContent =
+          `Souple (≥ 90 j) dès ${MONTH_FR[softWhen.month]} ${softWhen.year} : ${softMonths.join(" · ")}.` +
+          (hardWhen
+            ? ` Ferme (≥ 120 j) dès ${MONTH_FR[hardWhen.month]} ${hardWhen.year} : ${hardMonths.join(" · ")}.`
+            : "");
+      } else {
+        document.getElementById("buy-months").textContent = "";
+      }
       upsertChart("chart-ventes", "v", { beginAtZero: true });
       upsertChart("chart-inscriptions", "i", { beginAtZero: true });
       upsertChart("chart-prix", "p", { beginAtZero: false, prefix: "$" });
