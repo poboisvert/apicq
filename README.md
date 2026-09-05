@@ -8,6 +8,8 @@ Four series: ventes totales, inscriptions en vigueur, prix médian, moyenne de j
 
 Open the report: [`ile-montreal.html`](ile-montreal.html)
 
+The chronology charts extend six months with a dotted sklearn forecast (septembre 2026 – février 2027), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, and Bank of Canada rates.
+
 ## Coverage
 
 82 complete months, septembre 2019 – août 2026.
@@ -41,10 +43,25 @@ Limit years:
 python scripts/fetch_monthly_stats.py --years 2024 2025 2026
 ```
 
+Refresh the 6-month forecast (needs network for StatCan and the Bank of Canada):
+
+```bash
+python scripts/forecast_six_months.py
+```
+
 Outputs:
 
 - `data/ile-montreal.json`
 - `data/ile-montreal.csv`
+- `data/forecast-6m.json`
 - `data/pdfs/` (gitignored cache)
+
+The forecast is a Ridge model (`sklearn.linear_model.RidgeCV`) on seasonality, lags 1/2/3/12 of each housing series, and these macro series (lagged one month):
+
+- Québec employment and unemployment rate ([StatCan 14-10-0287-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701))
+- Canada monthly GDP ([36-10-0434-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401)); Québec does not publish monthly GDP
+- Québec CPI ([18-10-0004-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000401))
+- Québec housing starts ([34-10-0158-01](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410015801))
+- Overnight target, 5-year posted mortgage, 5-year GoC bond ([Bank of Canada Valet](https://www.bankofcanada.ca/valet-api-how-to/))
 
 Sources: [statistiques mensuelles](https://apciq.ca/barometre-residentiel/statistiques-mensuelles/) and the [archive](https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/).

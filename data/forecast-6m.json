@@ -1,0 +1,209 @@
+{
+  "generated_at": "2026-09-05T13:08:21.925400+00:00",
+  "horizon_months": 6,
+  "model": "RidgeCV + StandardScaler (sklearn)",
+  "last_actual": "08/26",
+  "labels": [
+    "09/26",
+    "10/26",
+    "11/26",
+    "12/26",
+    "01/27",
+    "02/27"
+  ],
+  "cv_mae": {
+    "copropriete": {
+      "ventes": 160.2,
+      "inscriptions": 333.0,
+      "prix": 11523.6,
+      "jours": 9.8
+    },
+    "plex": {
+      "ventes": 40.1,
+      "inscriptions": 123.5,
+      "prix": 23294.0,
+      "jours": 18.1
+    }
+  },
+  "forecast": {
+    "copropriete": {
+      "ventes": [
+        561.0,
+        552.0,
+        533.0,
+        518.0,
+        547.0,
+        688.0
+      ],
+      "inscriptions": [
+        6904.0,
+        6881.0,
+        6712.0,
+        6540.0,
+        6480.0,
+        6570.0
+      ],
+      "prix": [
+        470000.0,
+        475500.0,
+        480000.0,
+        485500.0,
+        488000.0,
+        490000.0
+      ],
+      "jours": [
+        68.0,
+        67.0,
+        69.0,
+        71.0,
+        72.0,
+        67.0
+      ]
+    },
+    "plex": {
+      "ventes": [
+        209.0,
+        227.0,
+        235.0,
+        222.0,
+        205.0,
+        224.0
+      ],
+      "inscriptions": [
+        1675.0,
+        1672.0,
+        1603.0,
+        1515.0,
+        1461.0,
+        1467.0
+      ],
+      "prix": [
+        896000.0,
+        896500.0,
+        897500.0,
+        905000.0,
+        910000.0,
+        924000.0
+      ],
+      "jours": [
+        46.0,
+        46.0,
+        50.0,
+        54.0,
+        55.0,
+        54.0
+      ]
+    }
+  },
+  "last_values": {
+    "copropriete": {
+      "ventes": 562.0,
+      "inscriptions": 6789.0,
+      "prix": 475000.0,
+      "jours": 72.0
+    },
+    "plex": {
+      "ventes": 179.0,
+      "inscriptions": 1622.0,
+      "prix": 870000.0,
+      "jours": 54.0
+    }
+  },
+  "economy": {
+    "latest": {
+      "qc_employment": 4588.7,
+      "qc_unemp_rate": 5.6,
+      "ca_gdp": 2369309.0,
+      "qc_cpi": 167.0,
+      "qc_starts": 63.666,
+      "overnight": 2.25,
+      "mortgage_5y": 6.09,
+      "bond_5y": 3.33
+    },
+    "path": [
+      {
+        "label": "09/26",
+        "qc_employment": 4626.599,
+        "qc_unemp_rate": 5.213,
+        "ca_gdp": 2381615.152,
+        "qc_cpi": 167.096,
+        "qc_starts": 59.893,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "10/26",
+        "qc_employment": 4655.375,
+        "qc_unemp_rate": 4.926,
+        "ca_gdp": 2391587.949,
+        "qc_cpi": 167.133,
+        "qc_starts": 58.377,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "11/26",
+        "qc_employment": 4673.493,
+        "qc_unemp_rate": 4.773,
+        "ca_gdp": 2398198.613,
+        "qc_cpi": 167.239,
+        "qc_starts": 57.86,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "12/26",
+        "qc_employment": 4680.797,
+        "qc_unemp_rate": 4.756,
+        "ca_gdp": 2401152.247,
+        "qc_cpi": 167.494,
+        "qc_starts": 57.77,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "01/27",
+        "qc_employment": 4679.552,
+        "qc_unemp_rate": 4.871,
+        "ca_gdp": 2401030.733,
+        "qc_cpi": 167.965,
+        "qc_starts": 57.39,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "02/27",
+        "qc_employment": 4674.271,
+        "qc_unemp_rate": 5.051,
+        "ca_gdp": 2399246.26,
+        "qc_cpi": 168.615,
+        "qc_starts": 57.235,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      }
+    ]
+  },
+  "sources": [
+    "StatCan 14-10-0287-01 — Québec employment and unemployment, seasonally adjusted",
+    "StatCan 36-10-0434-01 — Canada monthly GDP (Québec has no official monthly GDP)",
+    "StatCan 18-10-0004-01 — Québec CPI, all-items",
+    "StatCan 34-10-0158-01 — Québec housing starts, SAAR",
+    "Bank of Canada Valet — overnight target, 5-year posted mortgage, 5-year GoC bond"
+  ],
+  "features": [
+    "month seasonality",
+    "trend",
+    "lags 1/2/3/12 of the housing series",
+    "Québec employment and unemployment rate",
+    "Canada monthly GDP",
+    "Québec CPI",
+    "Québec housing starts",
+    "overnight rate, 5-year mortgage, 5-year bond (t-1)"
+  ]
+}

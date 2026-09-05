@@ -130,7 +130,7 @@
       <a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles/">APCIQ</a>
       et de l’<a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/">archive</a>.
     </p>
-    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris</p>
+    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn sept. 2026 – fév. 2027 (pointillés)</p>
 
     <div class="filters" id="filters"></div>
 
@@ -144,6 +144,11 @@
     <div class="callout">
       <strong>Trois cycles sur sept ans</strong>
       Boom COVID (pic mars 2021 à 1 426 condos), correction des taux (creux janv. 2023 à 366), reprise 2024–25, puis nouveau recul en 2026. L’offre de condos est passée d’environ 3 200 inscriptions (sept. 2019) à 6 789 en août 2026. Mois absents : janv.–juil. 2019 (PDF RMR seulement), avril 2020 (pause COVID, tableaux vides), mars 2023 (lien archive mort).
+    </div>
+
+    <div class="callout">
+      <strong>Prévision 6 mois (Ridge, scikit-learn)</strong>
+      Les pointillés prolongent chaque série jusqu’en février 2027. Le modèle utilise la saisonnalité, les retards 1/2/3/12 mois, l’emploi et le chômage du Québec, l’IPC Québec, les mises en chantier Québec, le PIB mensuel du Canada (le Québec n’en publie pas au mois), plus le taux directeur, l’hypothèque 5 ans et l’obligation 5 ans de la Banque du Canada. Les taux sont tenus au dernier niveau observé; les autres indicateurs macro sont projetés. Ce n’est pas une prévision officielle APCIQ.
     </div>
 
     <h2>Ventes totales</h2>
@@ -169,6 +174,42 @@
 
     <hr />
 
+    <h2>Prévision sept. 2026 – fév. 2027</h2>
+    <p class="meta">Pointillés sur les graphiques en vue chronologie · RidgeCV, sklearn</p>
+    <div class="table-scroll" style="max-height:none">
+      <table>
+        <thead>
+          <tr>
+            <th>Mois</th><th>Catégorie</th>
+            <th class="num">Ventes</th><th class="num">Inscriptions</th>
+            <th class="num">Prix médian</th><th class="num">Jours</th>
+          </tr>
+        </thead>
+        <tbody id="forecast-body"></tbody>
+      </table>
+    </div>
+    <p class="meta" id="forecast-mae"></p>
+
+    <h3>Contexte économique retenu</h3>
+    <p class="meta" id="forecast-econ-latest"></p>
+    <div class="table-scroll" style="max-height:none">
+      <table>
+        <thead>
+          <tr>
+            <th>Mois</th>
+            <th class="num">Emploi QC (k)</th>
+            <th class="num">Chômage QC</th>
+            <th class="num">PIB CA</th>
+            <th class="num">IPC QC</th>
+            <th class="num">Mises QC (k)</th>
+            <th class="num">Directeur</th>
+            <th class="num">Hyp. 5 ans</th>
+          </tr>
+        </thead>
+        <tbody id="forecast-econ-body"></tbody>
+      </table>
+    </div>
+
     <h2>Cumul janvier–août, ventes</h2>
     <div class="table-scroll" style="max-height:none">
       <table>
@@ -187,7 +228,7 @@
     </div>
 
     <h3>Lecture</h3>
-    <p>Le condo a plus que doublé de prix médian depuis 2019 (357 000 $ → 475 000 $) mais le volume 2026 est revenu au rythme de 2024, pas à celui de 2021. Les délais d’août 2026 (72 jours) sont les plus longs depuis l’hiver 2023–24.</p>
+    <p>Le prix médian du condo a augmenté d’environ 33 % depuis 2019 (357 000 $ → 475 000 $) mais le volume 2026 est revenu au rythme de 2024, pas à celui de 2021. Les délais d’août 2026 (72 jours) sont les plus longs depuis l’hiver 2023–24.</p>
     <p>Le plex a mieux absorbé le cycle : le cumul 2026 (1 888) n’est que 3 % sous 2025. Le prix est passé d’environ 615 000 $ à 870 000 $. L’offre remonte (1 622 en août), au-dessus de 2019–2021.</p>
 
     <h2>Tableau mensuel</h2>
@@ -208,7 +249,8 @@
 
     <p class="meta" style="margin-top:20px">
       Relancer l’extraction : <code>python scripts/fetch_monthly_stats.py</code>.
-      Données : <code>data/ile-montreal.json</code>.
+      Prévision : <code>python scripts/forecast_six_months.py</code>.
+      Données : <code>data/ile-montreal.json</code>, <code>data/forecast-6m.json</code>.
     </p>
   </main>
 
@@ -228,6 +270,9 @@
       prix: [615000,611250,619000,652000,647000,651500,670000,656500,675000,693000,695000,699000,700000,715000,725000,710000,750000,740000,774500,760000,780000,753250,749700,771250,775000,775000,780000,790000,804000,805000,846500,812500,821000,809000,770000,747500,760000,762000,732000,740000,760000,765000,760628,776389,765000,780000,788500,775000,773500,775000,725000,795000,795000,807000,830000,824500,833000,810000,845000,845000,836000,840000,831000,860000,900000,860000,873750,885000,835500,880500,885000,901250,900000,889000,860000,935000,922000,900000,908750,920000,910000,870000],
       jours: [57,73,59,70,66,56,46,66,58,66,59,47,45,48,46,57,61,49,44,42,37,47,51,54,56,46,49,62,54,56,46,43,44,48,50,53,53,57,61,74,88,73,75,68,70,68,74,56,65,78,92,76,76,74,74,68,75,92,76,67,72,78,72,78,76,54,47,48,56,56,50,52,59,52,71,51,56,48,43,43,48,54]
     };
+    // FORECAST_START
+    const FORECAST = {"generated_at": "2026-09-05T13:08:21.925400+00:00", "horizon_months": 6, "model": "RidgeCV + StandardScaler (sklearn)", "last_actual": "08/26", "labels": ["09/26", "10/26", "11/26", "12/26", "01/27", "02/27"], "cv_mae": {"copropriete": {"ventes": 160.2, "inscriptions": 333.0, "prix": 11523.6, "jours": 9.8}, "plex": {"ventes": 40.1, "inscriptions": 123.5, "prix": 23294.0, "jours": 18.1}}, "forecast": {"copropriete": {"ventes": [561.0, 552.0, 533.0, 518.0, 547.0, 688.0], "inscriptions": [6904.0, 6881.0, 6712.0, 6540.0, 6480.0, 6570.0], "prix": [470000.0, 475500.0, 480000.0, 485500.0, 488000.0, 490000.0], "jours": [68.0, 67.0, 69.0, 71.0, 72.0, 67.0]}, "plex": {"ventes": [209.0, 227.0, 235.0, 222.0, 205.0, 224.0], "inscriptions": [1675.0, 1672.0, 1603.0, 1515.0, 1461.0, 1467.0], "prix": [896000.0, 896500.0, 897500.0, 905000.0, 910000.0, 924000.0], "jours": [46.0, 46.0, 50.0, 54.0, 55.0, 54.0]}}, "last_values": {"copropriete": {"ventes": 562.0, "inscriptions": 6789.0, "prix": 475000.0, "jours": 72.0}, "plex": {"ventes": 179.0, "inscriptions": 1622.0, "prix": 870000.0, "jours": 54.0}}, "economy": {"latest": {"qc_employment": 4588.7, "qc_unemp_rate": 5.6, "ca_gdp": 2369309.0, "qc_cpi": 167.0, "qc_starts": 63.666, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, "path": [{"label": "09/26", "qc_employment": 4626.599, "qc_unemp_rate": 5.213, "ca_gdp": 2381615.152, "qc_cpi": 167.096, "qc_starts": 59.893, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "10/26", "qc_employment": 4655.375, "qc_unemp_rate": 4.926, "ca_gdp": 2391587.949, "qc_cpi": 167.133, "qc_starts": 58.377, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "11/26", "qc_employment": 4673.493, "qc_unemp_rate": 4.773, "ca_gdp": 2398198.613, "qc_cpi": 167.239, "qc_starts": 57.86, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "12/26", "qc_employment": 4680.797, "qc_unemp_rate": 4.756, "ca_gdp": 2401152.247, "qc_cpi": 167.494, "qc_starts": 57.77, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "01/27", "qc_employment": 4679.552, "qc_unemp_rate": 4.871, "ca_gdp": 2401030.733, "qc_cpi": 167.965, "qc_starts": 57.39, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "02/27", "qc_employment": 4674.271, "qc_unemp_rate": 5.051, "ca_gdp": 2399246.26, "qc_cpi": 168.615, "qc_starts": 57.235, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}]}, "sources": ["StatCan 14-10-0287-01 — Québec employment and unemployment, seasonally adjusted", "StatCan 36-10-0434-01 — Canada monthly GDP (Québec has no official monthly GDP)", "StatCan 18-10-0004-01 — Québec CPI, all-items", "StatCan 34-10-0158-01 — Québec housing starts, SAAR", "Bank of Canada Valet — overnight target, 5-year posted mortgage, 5-year GoC bond"], "features": ["month seasonality", "trend", "lags 1/2/3/12 of the housing series", "Québec employment and unemployment rate", "Canada monthly GDP", "Québec CPI", "Québec housing starts", "overnight rate, 5-year mortgage, 5-year bond (t-1)"]};
+    // FORECAST_END
     const YEAR_COLORS = { 2021: "#6b6860", 2022: "#2b6cb0", 2024: "#2a7a4b", 2025: "#b7791f", 2026: "#b42318" };
     const ROWS = TIMELINE.map((label, idx) => {
       const [mm, yy] = label.split("/");
@@ -253,6 +298,24 @@
       });
     }
 
+    function padHistory(values) {
+      if (!FORECAST.labels.length) return values;
+      return values.concat(Array(FORECAST.labels.length).fill(null));
+    }
+
+    function forecastLine(kind, field, color, label) {
+      const last = FORECAST.last_values[kind][field];
+      const future = FORECAST.forecast[kind][field] || [];
+      if (last == null || !future.length) return null;
+      return {
+        label,
+        data: Array(TIMELINE.length - 1).fill(null).concat([last, ...future]),
+        color,
+        dash: [7, 5],
+        points: true
+      };
+    }
+
     function series(field) {
       const map = { v: "ventes", i: "inscriptions", p: "prix", j: "jours" };
       const key = map[field];
@@ -271,8 +334,16 @@
         return out;
       }
       const out = [];
-      if (state.category !== "plex") out.push({ label: "Copropriété", data: COPRO[key], color: "#1f4e79" });
-      if (state.category !== "copro") out.push({ label: "Plex (2-5)", data: PLEX[key], color: "#2a7a4b" });
+      if (state.category !== "plex") {
+        out.push({ label: "Copropriété", data: padHistory(COPRO[key]), color: "#1f4e79" });
+        const forecast = forecastLine("copropriete", key, "#1f4e79", "Copro prévision");
+        if (forecast) out.push(forecast);
+      }
+      if (state.category !== "copro") {
+        out.push({ label: "Plex (2-5)", data: padHistory(PLEX[key]), color: "#2a7a4b" });
+        const forecast = forecastLine("plex", key, "#2a7a4b", "Plex prévision");
+        if (forecast) out.push(forecast);
+      }
       return out;
     }
 
@@ -283,7 +354,7 @@
         borderColor: item.color,
         backgroundColor: item.color,
         borderWidth: 2,
-        pointRadius: state.view === "seasonal" ? 3 : 0,
+        pointRadius: (item.points || state.view === "seasonal") ? 3 : 0,
         pointHoverRadius: 4,
         tension: 0.15,
         borderDash: item.dash || [],
@@ -292,7 +363,7 @@
     }
 
     function upsertChart(id, field, opts) {
-      const labels = state.view === "seasonal" ? SEASON : TIMELINE;
+      const labels = state.view === "seasonal" ? SEASON : TIMELINE.concat(FORECAST.labels || []);
       const datasets = series(field).map(lineDataset);
       const config = {
         type: "line",
@@ -346,23 +417,83 @@
       document.getElementById("filters").innerHTML = filters.map(([key, value, label]) =>
         `<button class="pill${state[key] === value ? " active" : ""}" data-key="${key}" data-value="${value}">${label}</button>`
       ).join("");
-      const years = ["all", 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+      const years = ["all", 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027];
       document.getElementById("years").innerHTML = years.map((year) =>
         `<button class="pill${String(state.year) === String(year) ? " active" : ""}" data-key="year" data-value="${year}">${year === "all" ? "Tout" : year}</button>`
+      ).join("");
+    }
+
+    function forecastRows() {
+      return (FORECAST.labels || []).map((label, idx) => {
+        const [mm, yy] = label.split("/");
+        return {
+          year: 2000 + Number(yy),
+          label,
+          copro: {
+            v: FORECAST.forecast.copropriete.ventes[idx],
+            i: FORECAST.forecast.copropriete.inscriptions[idx],
+            p: FORECAST.forecast.copropriete.prix[idx],
+            j: FORECAST.forecast.copropriete.jours[idx]
+          },
+          plex: {
+            v: FORECAST.forecast.plex.ventes[idx],
+            i: FORECAST.forecast.plex.inscriptions[idx],
+            p: FORECAST.forecast.plex.prix[idx],
+            j: FORECAST.forecast.plex.jours[idx]
+          }
+        };
+      }).filter((row) => row.copro.v != null);
+    }
+
+    function renderForecastTables() {
+      const showCopro = state.category !== "plex";
+      const showPlex = state.category !== "copro";
+      const html = [];
+      forecastRows().forEach((row) => {
+        if (showCopro) {
+          html.push(`<tr><td>${row.label}</td><td>Copropriété · prévision</td><td class="num">${fmtInt(row.copro.v)}</td><td class="num">${fmtInt(row.copro.i)}</td><td class="num">${fmtPrice(row.copro.p)}</td><td class="num">${row.copro.j}</td></tr>`);
+        }
+        if (showPlex) {
+          html.push(`<tr><td>${showCopro ? "" : row.label}</td><td>Plex (2-5) · prévision</td><td class="num">${fmtInt(row.plex.v)}</td><td class="num">${fmtInt(row.plex.i)}</td><td class="num">${fmtPrice(row.plex.p)}</td><td class="num">${row.plex.j}</td></tr>`);
+        }
+      });
+      document.getElementById("forecast-body").innerHTML = html.join("");
+      const mae = FORECAST.cv_mae || {};
+      const bits = [];
+      if (mae.copropriete) bits.push(`MAE copro ventes ${mae.copropriete.ventes ?? "—"}`);
+      if (mae.plex) bits.push(`MAE plex ventes ${mae.plex.ventes ?? "—"}`);
+      document.getElementById("forecast-mae").textContent = bits.length
+        ? `Erreur abs. moyenne en validation temporelle · ${bits.join(" · ")}`
+        : "";
+      const latest = FORECAST.economy && FORECAST.economy.latest ? FORECAST.economy.latest : {};
+      document.getElementById("forecast-econ-latest").textContent = latest.qc_employment
+        ? `Dernier niveau retenu : emploi Québec ${fmtInt(Math.round(latest.qc_employment))} k, chômage ${latest.qc_unemp_rate} %, taux directeur ${latest.overnight} %, hypothèque 5 ans ${latest.mortgage_5y} %.`
+        : "";
+      document.getElementById("forecast-econ-body").innerHTML = ((FORECAST.economy && FORECAST.economy.path) || []).map((row) =>
+        `<tr><td>${row.label}</td><td class="num">${fmtInt(Math.round(row.qc_employment))}</td><td class="num">${row.qc_unemp_rate} %</td><td class="num">${fmtInt(Math.round(row.ca_gdp))}</td><td class="num">${row.qc_cpi}</td><td class="num">${fmtInt(Math.round(row.qc_starts))}</td><td class="num">${row.overnight} %</td><td class="num">${row.mortgage_5y} %</td></tr>`
       ).join("");
     }
 
     function renderTable() {
       const showCopro = state.category !== "plex";
       const showPlex = state.category !== "copro";
-      const rows = ROWS.filter((row) => state.year === "all" || row.year === Number(state.year));
+      const observed = ROWS.filter((row) => state.year === "all" || row.year === Number(state.year));
+      const projected = forecastRows().filter((row) => state.year === "all" || row.year === Number(state.year));
       const html = [];
-      rows.forEach((row) => {
+      observed.forEach((row) => {
         if (showCopro) {
           html.push(`<tr><td>${row.label}</td><td>Copropriété</td><td class="num">${fmtInt(row.copro.v)}</td><td class="num">${fmtInt(row.copro.i)}</td><td class="num">${fmtPrice(row.copro.p)}</td><td class="num">${row.copro.j}</td></tr>`);
         }
         if (showPlex) {
           html.push(`<tr><td>${showCopro ? "" : row.label}</td><td>Plex (2-5)</td><td class="num">${fmtInt(row.plex.v)}</td><td class="num">${fmtInt(row.plex.i)}</td><td class="num">${fmtPrice(row.plex.p)}</td><td class="num">${row.plex.j}</td></tr>`);
+        }
+      });
+      projected.forEach((row) => {
+        if (showCopro) {
+          html.push(`<tr><td>${row.label}</td><td>Copropriété · prévision</td><td class="num">${fmtInt(row.copro.v)}</td><td class="num">${fmtInt(row.copro.i)}</td><td class="num">${fmtPrice(row.copro.p)}</td><td class="num">${row.copro.j}</td></tr>`);
+        }
+        if (showPlex) {
+          html.push(`<tr><td>${showCopro ? "" : row.label}</td><td>Plex (2-5) · prévision</td><td class="num">${fmtInt(row.plex.v)}</td><td class="num">${fmtInt(row.plex.i)}</td><td class="num">${fmtPrice(row.plex.p)}</td><td class="num">${row.plex.j}</td></tr>`);
         }
       });
       document.getElementById("month-body").innerHTML = html.join("");
@@ -373,11 +504,12 @@
       document.getElementById("cap-ventes").textContent =
         state.view === "seasonal"
           ? "Transactions Centris du mois · Île de Montréal · janvier–août, années complètes seulement"
-          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026";
+          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée jusqu’en fév. 2027";
       upsertChart("chart-ventes", "v", { beginAtZero: true });
       upsertChart("chart-inscriptions", "i", { beginAtZero: true });
       upsertChart("chart-prix", "p", { beginAtZero: false, prefix: "$" });
       upsertChart("chart-jours", "j", { beginAtZero: true, suffix: " j" });
+      renderForecastTables();
       renderTable();
     }
 
