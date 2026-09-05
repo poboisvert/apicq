@@ -6,7 +6,7 @@ Four series: ventes totales, inscriptions en vigueur, prix médian, moyenne de j
 
 ![Dashboard Île de Montréal 2019–2026](docs/ile-montreal.png)
 
-Open the report: [`ile-montreal.html`](ile-montreal.html)
+Open the report: [ile-montreal.html](https://poboisvert.github.io/apicq/ile-montreal.html)
 
 The chronology charts extend six months with a dotted sklearn forecast (septembre 2026 – février 2027), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, and Bank of Canada rates.
 
