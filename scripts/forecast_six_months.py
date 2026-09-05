@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Six-month Île de Montréal forecast using sklearn and Québec macro series.
+"""Île de Montréal forecast using sklearn and Québec macro series.
 
 Joins APCIQ monthly housing figures to StatCan / Bank of Canada indicators
 (employment, unemployment, CPI, housing starts, Canada monthly GDP, policy
-and mortgage rates), fits a Ridge model per series, and writes a 6-month
-dotted-line forecast for the HTML dashboard.
+and mortgage rates), fits a Ridge model per series, and writes a dotted-line
+forecast for the HTML dashboard (default: 9 months).
 
 Usage:
     python scripts/forecast_six_months.py
+    python scripts/forecast_six_months.py --horizon 9
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import re
@@ -30,7 +32,7 @@ DATA = ROOT / "data"
 HTML_PATH = ROOT / "ile-montreal.html"
 USER_AGENT = "apicq-forecast/1.0 (https://github.com/poboisvert/apicq_statistique)"
 
-HORIZON = 6
+HORIZON = 9
 START_ECON = "2018-01-01"
 END_ECON = "2027-12-31"
 
@@ -298,7 +300,8 @@ def clip_forecast(field: str, value: float, last: float) -> float:
     if field == "ventes":
         return float(max(40.0, round(value)))
     if field == "inscriptions":
-        return float(max(200.0, round(value)))
+        low, high = last * 0.82, last * 1.22
+        return float(max(200.0, min(high, max(low, round(value)))))
     if field == "prix":
         low, high = last * 0.85, last * 1.12
         return float(max(low, min(high, round(value / 500.0) * 500.0)))
@@ -424,6 +427,11 @@ def patch_html(forecast: dict) -> None:
 
 
 def main() -> int:
+    global HORIZON
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--horizon", type=int, default=HORIZON, help="Months ahead (default: 9)")
+    args = parser.parse_args()
+    HORIZON = args.horizon
     forecast = build_forecast()
     DATA.mkdir(exist_ok=True)
     out = DATA / "forecast-6m.json"

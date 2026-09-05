@@ -8,7 +8,7 @@ Four series: ventes totales, inscriptions en vigueur, prix médian, moyenne de j
 
 Open the report: [ile-montreal.html](https://poboisvert.github.io/apicq/ile-montreal.html)
 
-The chronology charts extend six months with a dotted sklearn forecast (septembre 2026 – février 2027), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, and Bank of Canada rates.
+The chronology charts extend nine months with a dotted sklearn forecast (septembre 2026 – mai 2027), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, and Bank of Canada rates.
 
 ## Coverage
 
@@ -43,7 +43,7 @@ Limit years:
 python scripts/fetch_monthly_stats.py --years 2024 2025 2026
 ```
 
-Refresh the 6-month forecast (needs network for StatCan and the Bank of Canada):
+Refresh the 9-month forecast (needs network for StatCan and the Bank of Canada):
 
 ```bash
 python scripts/forecast_six_months.py
