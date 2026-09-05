@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Île de Montréal — 2019 à 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f5f2;
+      --ink: #1c1b19;
+      --muted: #5c5a55;
+      --faint: #8a877f;
+      --line: #d8d4cc;
+      --card: #fff;
+      --accent: #1f4e79;
+      --copro: #1f4e79;
+      --plex: #2a7a4b;
+      --y21: #6b6860;
+      --y22: #2b6cb0;
+      --y24: #2a7a4b;
+      --y25: #b7791f;
+      --y26: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.5 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    h1 { font-size: 32px; line-height: 1.15; margin: 0 0 8px; font-weight: 600; }
+    h2 { font-size: 22px; margin: 36px 0 6px; font-weight: 600; }
+    h3 { font-size: 18px; margin: 20px 0 8px; font-weight: 600; }
+    p { margin: 0 0 10px; }
+    .lede { color: var(--muted); }
+    .meta { color: var(--faint); font-size: 13px; }
+    a { color: var(--accent); }
+    .filters, .years { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+    button.pill {
+      font: 13px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    button.pill.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 16px;
+    }
+    .stat b {
+      display: block;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .stat span { color: var(--muted); font-size: 13px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .stat.info b { color: var(--accent); }
+    .stat.danger b { color: var(--y26); }
+    .stat.warning b { color: var(--y25); }
+    .callout {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 16px 18px;
+      margin: 16px 0 8px;
+    }
+    .callout strong { display: block; margin-bottom: 6px; }
+    .chart-wrap {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 12px 12px 6px;
+      margin: 8px 0 8px;
+      height: 280px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    th { position: sticky; top: 0; background: var(--card); font-weight: 600; }
+    td.num, th.num { text-align: right; }
+    tbody tr:nth-child(even) { background: #faf9f6; }
+    .table-scroll { max-height: 520px; overflow: auto; border: 1px solid var(--line); }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+    @media (max-width: 800px) {
+      .stats, .split { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .stats, .split { grid-template-columns: 1fr; }
+      main { padding: 24px 16px 56px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Île de Montréal — 2019 à 2026</h1>
+    <p class="lede">
+      Copropriété et Plex (2-5 logements) extraits des PDF mensuels
+      <a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles/">APCIQ</a>
+      et de l’<a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/">archive</a>.
+    </p>
+    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris</p>
+
+    <div class="filters" id="filters"></div>
+
+    <div class="stats">
+      <div class="stat info"><b>1 426</b><span>Pic ventes copro · mars 2021</span></div>
+      <div class="stat danger"><b>366</b><span>Creux copro · janv. 2023</span></div>
+      <div class="stat warning"><b>6 789</b><span>Inscriptions copro août 2026</span></div>
+      <div class="stat"><b>+33 %</b><span>Prix médian copro vs sept. 2019</span></div>
+    </div>
+
+    <div class="callout">
+      <strong>Trois cycles sur sept ans</strong>
+      Boom COVID (pic mars 2021 à 1 426 condos), correction des taux (creux janv. 2023 à 366), reprise 2024–25, puis nouveau recul en 2026. L’offre de condos est passée d’environ 3 200 inscriptions (sept. 2019) à 6 789 en août 2026. Mois absents : janv.–juil. 2019 (PDF RMR seulement), avril 2020 (pause COVID, tableaux vides), mars 2023 (lien archive mort).
+    </div>
+
+    <h2>Ventes totales</h2>
+    <p class="meta" id="cap-ventes">Transactions Centris du mois · Île de Montréal</p>
+    <div class="chart-wrap"><canvas id="chart-ventes"></canvas></div>
+
+    <h2>Inscriptions en vigueur</h2>
+    <p class="meta">Offre active en fin de mois · Île de Montréal</p>
+    <div class="chart-wrap"><canvas id="chart-inscriptions"></canvas></div>
+
+    <div class="split">
+      <div>
+        <h2>Prix médian</h2>
+        <p class="meta">Dollars canadiens · mois civil</p>
+        <div class="chart-wrap"><canvas id="chart-prix"></canvas></div>
+      </div>
+      <div>
+        <h2>Moyenne de jours sur le marché</h2>
+        <p class="meta">Jours entre inscription et vente</p>
+        <div class="chart-wrap"><canvas id="chart-jours"></canvas></div>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2>Cumul janvier–août, ventes</h2>
+    <div class="table-scroll" style="max-height:none">
+      <table>
+        <thead>
+          <tr><th>Année</th><th class="num">Copropriété</th><th class="num">Plex (2-5)</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2021</td><td class="num">8 478</td><td class="num">2 535</td><td>Année record</td></tr>
+          <tr><td>2022</td><td class="num">7 142</td><td class="num">2 011</td><td>Début de la correction</td></tr>
+          <tr><td>2023</td><td class="num">4 670</td><td class="num">1 349</td><td>Sans mars (PDF manquant)</td></tr>
+          <tr><td>2024</td><td class="num">6 171</td><td class="num">1 733</td><td>Reprise</td></tr>
+          <tr><td>2025</td><td class="num">6 844</td><td class="num">1 963</td><td>Plus haut post-correction</td></tr>
+          <tr><td>2026</td><td class="num">6 091</td><td class="num">1 888</td><td>−11 % / −3 % vs 2025</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Lecture</h3>
+    <p>Le condo a plus que doublé de prix médian depuis 2019 (357 000 $ → 475 000 $) mais le volume 2026 est revenu au rythme de 2024, pas à celui de 2021. Les délais d’août 2026 (72 jours) sont les plus longs depuis l’hiver 2023–24.</p>
+    <p>Le plex a mieux absorbé le cycle : le cumul 2026 (1 888) n’est que 3 % sous 2025. Le prix est passé d’environ 615 000 $ à 870 000 $. L’offre remonte (1 622 en août), au-dessus de 2019–2021.</p>
+
+    <h2>Tableau mensuel</h2>
+    <div class="years" id="years"></div>
+    <p class="meta">Valeur du mois publiée dans chaque PDF · Île de Montréal</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Mois</th><th>Catégorie</th>
+            <th class="num">Ventes</th><th class="num">Inscriptions</th>
+            <th class="num">Prix médian</th><th class="num">Jours</th>
+          </tr>
+        </thead>
+        <tbody id="month-body"></tbody>
+      </table>
+    </div>
+
+    <p class="meta" style="margin-top:20px">
+      Relancer l’extraction : <code>python scripts/fetch_monthly_stats.py</code>.
+      Données : <code>data/ile-montreal.json</code>.
+    </p>
+  </main>
+
+  <script>
+    const TIMELINE = ["09/19","10/19","11/19","12/19","01/20","02/20","03/20","05/20","06/20","07/20","08/20","09/20","10/20","11/20","12/20","01/21","02/21","03/21","04/21","05/21","06/21","07/21","08/21","09/21","10/21","11/21","12/21","01/22","02/22","03/22","04/22","05/22","06/22","07/22","08/22","09/22","10/22","11/22","12/22","01/23","02/23","04/23","05/23","06/23","07/23","08/23","09/23","10/23","11/23","12/23","01/24","02/24","03/24","04/24","05/24","06/24","07/24","08/24","09/24","10/24","11/24","12/24","01/25","02/25","03/25","04/25","05/25","06/25","07/25","08/25","09/25","10/25","11/25","12/25","01/26","02/26","03/26","04/26","05/26","06/26","07/26","08/26"];
+    const SEASON = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août"];
+    const SEASON_YEARS = [2021, 2022, 2024, 2025, 2026];
+    const COPRO = {
+      ventes: [766,816,831,718,663,931,992,518,856,987,999,977,1083,996,856,750,1075,1426,1401,1226,1014,835,751,842,935,934,798,652,967,1294,1145,1106,838,620,520,483,532,559,466,366,617,766,982,743,643,553,583,539,602,443,402,800,852,968,963,807,747,632,664,794,812,675,596,845,1013,1051,1007,934,753,645,650,767,724,570,493,791,993,972,924,783,582,562],
+      inscriptions: [3200,3183,3006,2551,2588,3592,2576,3017,3595,3811,4075,4545,4689,4670,4137,4027,4106,4127,3954,3899,3871,3583,3460,3573,3536,3324,2654,2824,3016,3089,3114,3262,3548,3805,4020,4351,4467,4536,4072,4079,4331,4683,4624,4603,4464,4533,4715,4961,4904,4383,4608,4956,5309,5512,5666,5714,5467,5332,5587,5571,5392,4688,4852,5295,5735,5974,6160,6063,5940,5991,6418,6547,6304,5561,5697,6249,6692,6950,7112,7080,6800,6789],
+      prix: [356750,355250,360000,360000,369000,380000,385000,369900,390000,395000,384000,392250,390000,400000,400000,395000,400000,403500,415000,421000,420000,416250,430000,428000,439000,426000,430000,423400,440000,455250,459000,457000,465000,442000,430000,415000,440000,430000,435000,414500,440000,440000,453500,439000,452700,449900,445000,451000,449000,446000,450000,455000,454000,460000,460000,455000,459950,460000,462150,478950,477000,465000,466000,475000,482500,475000,487531,482500,470000,477500,479250,490000,468000,470000,465000,475000,481000,480000,479000,495809,480000,475000],
+      jours: [69,60,65,73,71,57,48,59,42,38,39,44,40,47,53,62,60,55,52,51,41,50,54,56,52,49,62,65,51,44,39,36,37,40,45,50,53,55,67,84,67,59,60,56,62,59,65,57,66,75,85,67,65,64,61,61,68,64,69,62,66,75,83,66,61,51,45,47,53,55,54,57,59,68,76,59,54,56,51,52,60,72]
+    };
+    const PLEX = {
+      ventes: [268,320,305,284,214,286,307,155,279,321,250,290,392,369,350,277,284,368,374,375,349,284,224,244,308,326,273,187,281,333,326,305,270,172,137,131,181,134,139,103,133,224,278,210,214,187,168,194,170,157,97,191,233,263,285,280,197,187,193,240,268,235,142,220,258,293,334,253,268,195,254,286,308,234,150,221,267,277,294,276,229,179],
+      inscriptions: [1147,1153,1122,928,927,1313,982,1012,1035,936,998,1223,1250,1286,1128,985,1021,1164,1238,1314,1304,1187,1188,1291,1314,1303,958,892,950,1082,1107,1165,1165,1380,1455,1634,1652,1696,1503,1398,1501,1529,1524,1522,1366,1384,1516,1561,1627,1449,1442,1521,1594,1650,1744,1664,1552,1506,1567,1540,1445,1247,1218,1268,1380,1468,1464,1467,1349,1390,1529,1555,1478,1263,1283,1367,1537,1646,1669,1676,1578,1622],
+      prix: [615000,611250,619000,652000,647000,651500,670000,656500,675000,693000,695000,699000,700000,715000,725000,710000,750000,740000,774500,760000,780000,753250,749700,771250,775000,775000,780000,790000,804000,805000,846500,812500,821000,809000,770000,747500,760000,762000,732000,740000,760000,765000,760628,776389,765000,780000,788500,775000,773500,775000,725000,795000,795000,807000,830000,824500,833000,810000,845000,845000,836000,840000,831000,860000,900000,860000,873750,885000,835500,880500,885000,901250,900000,889000,860000,935000,922000,900000,908750,920000,910000,870000],
+      jours: [57,73,59,70,66,56,46,66,58,66,59,47,45,48,46,57,61,49,44,42,37,47,51,54,56,46,49,62,54,56,46,43,44,48,50,53,53,57,61,74,88,73,75,68,70,68,74,56,65,78,92,76,76,74,74,68,75,92,76,67,72,78,72,78,76,54,47,48,56,56,50,52,59,52,71,51,56,48,43,43,48,54]
+    };
+    const YEAR_COLORS = { 2021: "#6b6860", 2022: "#2b6cb0", 2024: "#2a7a4b", 2025: "#b7791f", 2026: "#b42318" };
+    const ROWS = TIMELINE.map((label, idx) => {
+      const [mm, yy] = label.split("/");
+      return {
+        year: 2000 + Number(yy),
+        month: Number(mm),
+        label,
+        copro: { v: COPRO.ventes[idx], i: COPRO.inscriptions[idx], p: COPRO.prix[idx], j: COPRO.jours[idx] },
+        plex: { v: PLEX.ventes[idx], i: PLEX.inscriptions[idx], p: PLEX.prix[idx], j: PLEX.jours[idx] }
+      };
+    });
+
+    const state = { category: "both", view: "timeline", year: "all" };
+    const charts = {};
+
+    function fmtInt(n) { return n.toLocaleString("fr-CA"); }
+    function fmtPrice(n) { return `${n.toLocaleString("fr-CA")} $`; }
+
+    function seasonal(year, field, kind) {
+      return [1,2,3,4,5,6,7,8].map((month) => {
+        const row = ROWS.find((item) => item.year === year && item.month === month);
+        return row ? row[kind][field] : null;
+      });
+    }
+
+    function series(field) {
+      const map = { v: "ventes", i: "inscriptions", p: "prix", j: "jours" };
+      const key = map[field];
+      if (state.view === "seasonal") {
+        const out = [];
+        if (state.category !== "plex") {
+          SEASON_YEARS.forEach((year) => out.push({
+            label: `Copro ${year}`, data: seasonal(year, field, "copro"), color: YEAR_COLORS[year]
+          }));
+        }
+        if (state.category !== "copro") {
+          SEASON_YEARS.forEach((year) => out.push({
+            label: `Plex ${year}`, data: seasonal(year, field, "plex"), color: YEAR_COLORS[year], dash: [5, 4]
+          }));
+        }
+        return out;
+      }
+      const out = [];
+      if (state.category !== "plex") out.push({ label: "Copropriété", data: COPRO[key], color: "#1f4e79" });
+      if (state.category !== "copro") out.push({ label: "Plex (2-5)", data: PLEX[key], color: "#2a7a4b" });
+      return out;
+    }
+
+    function lineDataset(item) {
+      return {
+        label: item.label,
+        data: item.data,
+        borderColor: item.color,
+        backgroundColor: item.color,
+        borderWidth: 2,
+        pointRadius: state.view === "seasonal" ? 3 : 0,
+        pointHoverRadius: 4,
+        tension: 0.15,
+        borderDash: item.dash || [],
+        spanGaps: true
+      };
+    }
+
+    function upsertChart(id, field, opts) {
+      const labels = state.view === "seasonal" ? SEASON : TIMELINE;
+      const datasets = series(field).map(lineDataset);
+      const config = {
+        type: "line",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { labels: { boxWidth: 12, font: { size: 11 } } }
+          },
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: state.view === "seasonal" ? 8 : 16,
+                font: { size: 10 }
+              },
+              grid: { color: "#eeeae3" }
+            },
+            y: {
+              beginAtZero: opts.beginAtZero !== false,
+              ticks: {
+                callback: (v) => opts.prefix ? opts.prefix + Number(v).toLocaleString("fr-CA") : (opts.suffix ? v + opts.suffix : Number(v).toLocaleString("fr-CA")),
+                font: { size: 10 }
+              },
+              grid: { color: "#eeeae3" }
+            }
+          }
+        }
+      };
+      if (charts[id]) {
+        charts[id].data.labels = labels;
+        charts[id].data.datasets = datasets;
+        charts[id].options.scales.y.beginAtZero = opts.beginAtZero !== false;
+        charts[id].update();
+      } else {
+        charts[id] = new Chart(document.getElementById(id), config);
+      }
+    }
+
+    function renderPills() {
+      const filters = [
+        ["category", "both", "Les deux"],
+        ["category", "copro", "Copropriété"],
+        ["category", "plex", "Plex (2-5)"],
+        ["view", "timeline", "Chronologie"],
+        ["view", "seasonal", "Jan–août 2021–26"]
+      ];
+      document.getElementById("filters").innerHTML = filters.map(([key, value, label]) =>
+        `<button class="pill${state[key] === value ? " active" : ""}" data-key="${key}" data-value="${value}">${label}</button>`
+      ).join("");
+      const years = ["all", 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+      document.getElementById("years").innerHTML = years.map((year) =>
+        `<button class="pill${String(state.year) === String(year) ? " active" : ""}" data-key="year" data-value="${year}">${year === "all" ? "Tout" : year}</button>`
+      ).join("");
+    }
+
+    function renderTable() {
+      const showCopro = state.category !== "plex";
+      const showPlex = state.category !== "copro";
+      const rows = ROWS.filter((row) => state.year === "all" || row.year === Number(state.year));
+      const html = [];
+      rows.forEach((row) => {
+        if (showCopro) {
+          html.push(`<tr><td>${row.label}</td><td>Copropriété</td><td class="num">${fmtInt(row.copro.v)}</td><td class="num">${fmtInt(row.copro.i)}</td><td class="num">${fmtPrice(row.copro.p)}</td><td class="num">${row.copro.j}</td></tr>`);
+        }
+        if (showPlex) {
+          html.push(`<tr><td>${showCopro ? "" : row.label}</td><td>Plex (2-5)</td><td class="num">${fmtInt(row.plex.v)}</td><td class="num">${fmtInt(row.plex.i)}</td><td class="num">${fmtPrice(row.plex.p)}</td><td class="num">${row.plex.j}</td></tr>`);
+        }
+      });
+      document.getElementById("month-body").innerHTML = html.join("");
+    }
+
+    function render() {
+      renderPills();
+      document.getElementById("cap-ventes").textContent =
+        state.view === "seasonal"
+          ? "Transactions Centris du mois · Île de Montréal · janvier–août, années complètes seulement"
+          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026";
+      upsertChart("chart-ventes", "v", { beginAtZero: true });
+      upsertChart("chart-inscriptions", "i", { beginAtZero: true });
+      upsertChart("chart-prix", "p", { beginAtZero: false, prefix: "$" });
+      upsertChart("chart-jours", "j", { beginAtZero: true, suffix: " j" });
+      renderTable();
+    }
+
+    document.body.addEventListener("click", (event) => {
+      const button = event.target.closest("button.pill");
+      if (!button) return;
+      state[button.dataset.key] = button.dataset.key === "year" && button.dataset.value !== "all"
+        ? Number(button.dataset.value)
+        : button.dataset.value;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
