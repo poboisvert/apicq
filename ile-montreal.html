@@ -145,7 +145,7 @@
       <a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles/">APCIQ</a>
       et de l’<a href="https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/">archive</a>.
     </p>
-    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn 9 mois, sept. 2026 – mai 2027 · janvier omis des graphiques (renouvellement des inscriptions)</p>
+    <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn 9 mois, sept. 2026 – mai 2027 · décembre et janvier omis des graphiques (renouvellement des inscriptions)</p>
 
     <div class="filters" id="filters"></div>
     <p class="meta legend-buy">
@@ -178,7 +178,7 @@
     <div class="chart-wrap"><canvas id="chart-ventes"></canvas></div>
 
     <h2>Inscriptions en vigueur</h2>
-    <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal · janvier retiré (inscriptions expirées en décembre, renouvelées en février)</p>
+    <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal · décembre et janvier retirés (inscriptions expirées, renouvelées en février)</p>
     <div class="chart-wrap" style="height:320px"><canvas id="chart-inscriptions"></canvas></div>
     <p class="meta" id="buy-months"></p>
 
@@ -314,24 +314,25 @@
     function fmtInt(n) { return n.toLocaleString("fr-CA"); }
     function fmtPrice(n) { return `${n.toLocaleString("fr-CA")} $`; }
 
-    function isJanuaryLabel(label) {
-      return String(label).startsWith("01/");
+    function skipChartMonth(label) {
+      const month = String(label).slice(0, 2);
+      return month === "12" || month === "01";
     }
 
-    const CHART_TIMELINE = TIMELINE.filter((label) => !isJanuaryLabel(label));
+    const CHART_TIMELINE = TIMELINE.filter((label) => !skipChartMonth(label));
 
     function chartHistory(values) {
-      return values.filter((_, idx) => !isJanuaryLabel(TIMELINE[idx]));
+      return values.filter((_, idx) => !skipChartMonth(TIMELINE[idx]));
     }
 
     function chartForecastLabels() {
-      return (FORECAST.labels || []).filter((label) => !isJanuaryLabel(label));
+      return (FORECAST.labels || []).filter((label) => !skipChartMonth(label));
     }
 
     function chartForecastValues(kind, field) {
       return (FORECAST.labels || [])
         .map((label, idx) => ({ label, value: FORECAST.forecast[kind][field][idx] }))
-        .filter((item) => !isJanuaryLabel(item.label))
+        .filter((item) => !skipChartMonth(item.label))
         .map((item) => item.value);
     }
 
@@ -382,7 +383,7 @@
       (FORECAST.labels || []).forEach((label, idx) => {
         insc = FORECAST.forecast.copropriete.inscriptions[idx];
         const { year, month } = parseLabel(label);
-        if (month === 1) return;
+        if (month === 1 || month === 12) return;
         labels.push(label);
         listings.push(insc);
         implied.push(impliedCondoDom(month, insc));
@@ -395,7 +396,7 @@
           year += 1;
         }
         insc = Math.max(4000, insc + CONDO_SEASON[month].delta);
-        if (month === 1) continue;
+        if (month === 1 || month === 12) continue;
         labels.push(makeLabel(year, month));
         listings.push(Math.round(insc));
         implied.push(impliedCondoDom(month, insc));
@@ -658,7 +659,7 @@
     }
 
     function forecastRows() {
-      return (FORECAST.labels || []).filter((label) => !isJanuaryLabel(label)).map((label) => {
+      return (FORECAST.labels || []).filter((label) => !skipChartMonth(label)).map((label) => {
         const idx = FORECAST.labels.indexOf(label);
         const [mm, yy] = label.split("/");
         return {
@@ -745,8 +746,8 @@
       const hardAt = firstAtLeast(path.implied, BUY_HARD);
       const showBuy = state.view === "timeline" && state.category !== "plex";
       document.getElementById("cap-inscriptions").textContent = showBuy
-        ? "Offre active condo · prévision Ridge 9 mois jusqu’en mai 2027, sans janvier. Au-delà, tendance saisonnière. Souple = 90 j, ferme = 120 j."
-        : "Offre active en fin de mois · Île de Montréal · janvier retiré des graphiques";
+        ? "Offre active condo · prévision Ridge 9 mois jusqu’en mai 2027, sans décembre ni janvier. Au-delà, tendance saisonnière. Souple = 90 j, ferme = 120 j."
+        : "Offre active en fin de mois · Île de Montréal · décembre et janvier retirés des graphiques";
       if (showBuy && softAt >= 0) {
         const softMonths = groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_SOFT));
         const hardMonths = hardAt >= 0 ? groupMonthRuns(path.labels, flagsFrom(path.implied, BUY_HARD)) : [];
