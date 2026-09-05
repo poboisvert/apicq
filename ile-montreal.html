@@ -113,6 +113,19 @@
     tbody tr:nth-child(even) { background: #faf9f6; }
     .table-scroll { max-height: 520px; overflow: auto; border: 1px solid var(--line); }
     hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+    .legend-buy {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+    .legend-buy .swatch {
+      width: 22px;
+      height: 12px;
+      background: rgba(42, 122, 75, 0.28);
+      border: 1px solid rgba(42, 122, 75, 0.45);
+      flex: 0 0 auto;
+    }
     @media (max-width: 800px) {
       .stats, .split { grid-template-columns: 1fr 1fr; }
     }
@@ -133,6 +146,10 @@
     <p class="meta">82 mois · sept. 2019 – août 2026 · source Centris · prévision sklearn sept. 2026 – fév. 2027 (pointillés)</p>
 
     <div class="filters" id="filters"></div>
+    <p class="meta legend-buy">
+      <span class="swatch"></span>
+      Zone verte : bon moment pour acheter — plus de 7 mois d’inventaire (inscriptions ÷ ventes) et au moins 55 jours sur le marché.
+    </p>
 
     <div class="stats">
       <div class="stat info"><b>1 426</b><span>Pic ventes copro · mars 2021</span></div>
@@ -297,6 +314,91 @@
         return row ? row[kind][field] : null;
       });
     }
+
+    const BUY_INVENTORY = 7;
+    const BUY_DAYS = 55;
+
+    function categoryPoints(kind) {
+      const hist = kind === "copro" ? COPRO : PLEX;
+      const key = kind === "copro" ? "copropriete" : "plex";
+      const points = hist.ventes.map((ventes, idx) => ({
+        ventes,
+        inscriptions: hist.inscriptions[idx],
+        jours: hist.jours[idx]
+      }));
+      const future = FORECAST.forecast[key];
+      if (future && future.ventes) {
+        future.ventes.forEach((ventes, idx) => {
+          points.push({
+            ventes,
+            inscriptions: future.inscriptions[idx],
+            jours: future.jours[idx]
+          });
+        });
+      }
+      return points;
+    }
+
+    function isBuyMonth(point) {
+      if (!point || !point.ventes) return false;
+      return (point.inscriptions / point.ventes) >= BUY_INVENTORY && point.jours >= BUY_DAYS;
+    }
+
+    function buyFlags() {
+      const kinds = [];
+      if (state.category !== "plex") kinds.push("copro");
+      if (state.category !== "copro") kinds.push("plex");
+      const length = TIMELINE.length + (FORECAST.labels || []).length;
+      const flags = Array(length).fill(false);
+      kinds.forEach((kind) => {
+        categoryPoints(kind).forEach((point, idx) => {
+          if (isBuyMonth(point)) flags[idx] = true;
+        });
+      });
+      for (let i = 1; i < flags.length - 1; i += 1) {
+        if (!flags[i] && flags[i - 1] && flags[i + 1]) flags[i] = true;
+      }
+      return flags;
+    }
+
+    function buyBands() {
+      const flags = buyFlags();
+      const bands = [];
+      let start = null;
+      flags.forEach((flag, idx) => {
+        if (flag && start === null) start = idx;
+        if (!flag && start !== null) {
+          bands.push([start, idx - 1]);
+          start = null;
+        }
+      });
+      if (start !== null) bands.push([start, flags.length - 1]);
+      return bands;
+    }
+
+    const buyZonePlugin = {
+      id: "buyZone",
+      beforeDraw(chart) {
+        if (state.view !== "timeline") return;
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea || !scales.x) return;
+        const x = scales.x;
+        ctx.save();
+        ctx.fillStyle = "rgba(42, 122, 75, 0.16)";
+        buyBands().forEach(([start, end]) => {
+          const startPx = x.getPixelForValue(start);
+          const endPx = x.getPixelForValue(end);
+          const step = start === end
+            ? Math.abs(x.getPixelForValue(start + 1) - startPx) || 16
+            : (endPx - startPx) / (end - start);
+          const left = Math.min(startPx, endPx) - step / 2;
+          const width = Math.abs(endPx - startPx) + step;
+          ctx.fillRect(left, chartArea.top, width, chartArea.bottom - chartArea.top);
+        });
+        ctx.restore();
+      }
+    };
+    Chart.register(buyZonePlugin);
 
     function padHistory(values) {
       if (!FORECAST.labels.length) return values;
@@ -504,7 +606,7 @@
       document.getElementById("cap-ventes").textContent =
         state.view === "seasonal"
           ? "Transactions Centris du mois · Île de Montréal · janvier–août, années complètes seulement"
-          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée jusqu’en fév. 2027";
+          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée jusqu’en fév. 2027. Vert = bon moment pour acheter.";
       upsertChart("chart-ventes", "v", { beginAtZero: true });
       upsertChart("chart-inscriptions", "i", { beginAtZero: true });
       upsertChart("chart-prix", "p", { beginAtZero: false, prefix: "$" });
