@@ -63,7 +63,9 @@ ECON_KEYS = [
 
 TARGETS = ("ventes", "inscriptions", "prix", "jours")
 CATEGORIES = ("copropriete", "plex")
+CATEGORY_LABELS = {"copropriete": "Copropriété", "plex": "Plex (2-5)"}
 LAGS = (1, 2, 3, 12)
+SPRING_MONTHS = ((4, "april"), (5, "may"))
 
 
 def http_get(url: str) -> bytes:
@@ -192,12 +194,170 @@ def target_history(rows: list[dict], category: str, field: str) -> dict[int, flo
     return history
 
 
+def month_field(rows: list[dict], year: int, month: int, category: str, field: str) -> float | None:
+    for row in rows:
+        if row["year"] == year and row["month"] == month:
+            value = row[category].get(field)
+            return None if value is None else float(value)
+    return None
+
+
+def ratio_yoy(current: float | None, previous: float | None) -> float | None:
+    if current is None or previous is None or previous == 0:
+        return None
+    return current / previous - 1.0
+
+
+def build_spring_years(rows: list[dict], category: str) -> dict[int, dict]:
+    """April/May vs the same months a year earlier. A drop is a slowing-market flag."""
+    years = sorted({row["year"] for row in rows})
+    out: dict[int, dict] = {}
+    for year in years:
+        months: dict[str, dict] = {}
+        lowers: list[bool] = []
+        ventes_yoys: list[float] = []
+        prix_yoys: list[float] = []
+        for month_num, key in SPRING_MONTHS:
+            ventes = month_field(rows, year, month_num, category, "ventes")
+            ventes_prev = month_field(rows, year - 1, month_num, category, "ventes")
+            prix = month_field(rows, year, month_num, category, "prix")
+            prix_prev = month_field(rows, year - 1, month_num, category, "prix")
+            ventes_yoy = ratio_yoy(ventes, ventes_prev)
+            prix_yoy = ratio_yoy(prix, prix_prev)
+            comparable = ventes is not None and ventes_prev is not None
+            lower = comparable and ventes < ventes_prev
+            if ventes_yoy is not None:
+                ventes_yoys.append(ventes_yoy)
+            if prix_yoy is not None:
+                prix_yoys.append(prix_yoy)
+            if comparable:
+                lowers.append(lower)
+            months[key] = {
+                "ventes": ventes,
+                "ventes_prev": ventes_prev,
+                "ventes_yoy": None if ventes_yoy is None else round(ventes_yoy, 4),
+                "prix": prix,
+                "prix_prev": prix_prev,
+                "prix_yoy": None if prix_yoy is None else round(prix_yoy, 4),
+                "lower": lower if comparable else None,
+            }
+        ventes_mean = sum(ventes_yoys) / len(ventes_yoys) if ventes_yoys else None
+        prix_mean = sum(prix_yoys) / len(prix_yoys) if prix_yoys else None
+        slow = bool(lowers) and any(lowers)
+        out[year] = {
+            "comparable": bool(lowers),
+            "slow": slow,
+            "april_lower": months["april"]["lower"],
+            "may_lower": months["may"]["lower"],
+            "ventes_yoy": None if ventes_mean is None else round(ventes_mean, 4),
+            "prix_yoy": None if prix_mean is None else round(prix_mean, 4),
+            "price_lag": bool(
+                slow
+                and ventes_mean is not None
+                and ventes_mean < 0
+                and (prix_mean is None or prix_mean >= -0.005)
+            ),
+            "months": months,
+        }
+    return out
+
+
+def latest_spring(spring_years: dict[int, dict]) -> tuple[int | None, dict | None]:
+    comparable = [year for year, item in spring_years.items() if item.get("comparable")]
+    if not comparable:
+        return None, None
+    year = max(comparable)
+    return year, spring_years[year]
+
+
+def spring_reading(label: str, year: int, prior: int, signal: dict) -> str:
+    if not signal.get("comparable"):
+        return f"{label} : avril–mai {year} incomparable (mois manquant)."
+    if not signal.get("slow"):
+        return (
+            f"{label} : avril et mai {year} ne sont pas plus faibles qu’en {prior}. "
+            "Pas de signal de ralentissement printanier."
+        )
+    if signal.get("price_lag"):
+        price = (
+            "Le prix médian tient encore ou monte : le volume précède le prix, "
+            "mauvais signe pour la suite."
+        )
+    elif signal.get("prix_yoy") is not None and signal["prix_yoy"] < -0.02:
+        price = "Le prix médian recule aussi : le ralentissement est confirmé."
+    else:
+        price = (
+            "Le prix médian est à peu près stable : le ralentissement se lit "
+            "d’abord dans les ventes."
+        )
+    return (
+        f"{label} : avril ou mai {year} plus faible qu’en {prior} — "
+        f"mauvais signe, le marché ralentit. {price}"
+    )
+
+
+def spring_features(
+    year: int,
+    month: int,
+    spring_years: dict[int, dict],
+    last_spring_year: int | None,
+) -> list[float]:
+    if last_spring_year is None:
+        return [0.0, 0.0, 0.0, 0.0]
+    ref = min(year if month >= 5 else year - 1, last_spring_year)
+    signal = spring_years.get(ref)
+    if not signal or not signal.get("comparable"):
+        return [0.0, 0.0, 0.0, 0.0]
+    return [
+        1.0 if signal.get("slow") else 0.0,
+        float(signal.get("ventes_yoy") or 0.0),
+        float(signal.get("prix_yoy") or 0.0),
+        1.0 if signal.get("price_lag") else 0.0,
+    ]
+
+
+def apply_spring_bias(
+    field: str,
+    pred: float,
+    last: float,
+    month: int,
+    step: int,
+    horizon: int,
+    signal: dict | None,
+) -> float:
+    """When last spring was weaker, cap a rebound and do not let prices keep rising."""
+    if not signal or not signal.get("slow"):
+        return pred
+    ventes_yoy = signal.get("ventes_yoy")
+    if ventes_yoy is None:
+        return pred
+    if field == "ventes":
+        pred = pred * (1 + 0.4 * min(0.0, ventes_yoy))
+        name = {4: "april", 5: "may"}.get(month)
+        same = (signal.get("months") or {}).get(name or "")
+        if same and same.get("ventes") is not None:
+            pred = min(pred, float(same["ventes"]))
+        return pred
+    if field == "prix":
+        progress = (step + 1) / max(1, horizon)
+        prix_yoy = signal.get("prix_yoy")
+        if prix_yoy is None or prix_yoy >= -0.005:
+            ceiling = last * (1 + 0.25 * min(0.0, ventes_yoy) * progress)
+            return min(pred, last, ceiling)
+        return min(pred, last)
+    if field == "jours":
+        return pred * (1 - 0.15 * min(0.0, ventes_yoy))
+    return pred
+
+
 def design_matrix(
     keys: list[int],
     target: dict[int, float],
     econ: dict[str, dict[int, float]],
     *,
     require_target: bool,
+    spring_years: dict[int, dict] | None = None,
+    last_spring_year: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray, list[int]]:
     X_rows: list[list[float]] = []
     y_rows: list[float] = []
@@ -228,6 +388,7 @@ def design_matrix(
             features.append(value)
         if skip:
             continue
+        features.extend(spring_features(year, month, spring_years or {}, last_spring_year))
         X_rows.append(features)
         y_rows.append(target.get(key, 0.0))
         used.append(key)
@@ -351,7 +512,19 @@ def build_forecast() -> dict:
             "Québec CPI",
             "Québec housing starts",
             "overnight rate, 5-year mortgage, 5-year bond (t-1)",
+            "April/May year-over-year ventes (slowing if either month is lower)",
+            "April/May year-over-year median price (volume vs price)",
         ],
+        "spring": {
+            "rule": (
+                "If April or May ventes are lower than the same month a year earlier, "
+                "the market is slowing. Compare that volume signal with median price: "
+                "when sales fall and prices still hold, volume is leading."
+            ),
+            "last_year": None,
+            "prior_year": None,
+            "categories": {},
+        },
     }
     # Fix labels properly
     labels = []
@@ -387,10 +560,37 @@ def build_forecast() -> dict:
 
     train_keys = [row["key"] for row in housing]
     for category in CATEGORIES:
+        spring_years = build_spring_years(housing, category)
+        last_year, latest = latest_spring(spring_years)
+        latest = latest or None
+        prior_year = None if last_year is None else last_year - 1
+        if last_year is not None and latest is not None:
+            result["spring"]["last_year"] = last_year
+            result["spring"]["prior_year"] = prior_year
+            payload = {
+                **latest,
+                "reading": spring_reading(
+                    CATEGORY_LABELS[category], last_year, prior_year, latest
+                ),
+            }
+            result["spring"]["categories"][category] = payload
+            print(
+                f"  spring {category}: {last_year} vs {prior_year} "
+                f"slow={latest['slow']} ventes_yoy={latest['ventes_yoy']} "
+                f"prix_yoy={latest['prix_yoy']}",
+                flush=True,
+            )
         result["cv_mae"][category] = {}
         for field in TARGETS:
             history = target_history(housing, category, field)
-            X, y, _used = design_matrix(train_keys, history, econ, require_target=True)
+            X, y, _used = design_matrix(
+                train_keys,
+                history,
+                econ,
+                require_target=True,
+                spring_years=spring_years,
+                last_spring_year=last_year,
+            )
             mae = cv_mae(X, y)
             result["cv_mae"][category][field] = None if math.isnan(mae) else round(mae, 1)
             model = ridge_pipeline()
@@ -399,12 +599,24 @@ def build_forecast() -> dict:
             result["last_values"][category][field] = last_actual
             rolling = dict(history)
             preds = []
-            for key in future_keys:
-                X_one, _, used = design_matrix([key], rolling, econ, require_target=False)
+            for step, key in enumerate(future_keys):
+                year, month = divmod(key, 12)
+                if month == 0:
+                    year -= 1
+                    month = 12
+                X_one, _, used = design_matrix(
+                    [key],
+                    rolling,
+                    econ,
+                    require_target=False,
+                    spring_years=spring_years,
+                    last_spring_year=last_year,
+                )
                 if not used:
                     pred = last_actual
                 else:
                     pred = float(model.predict(X_one)[0])
+                pred = apply_spring_bias(field, pred, last_actual, month, step, HORIZON, latest)
                 pred = clip_forecast(field, pred, last_actual)
                 rolling[key] = pred
                 preds.append(pred)

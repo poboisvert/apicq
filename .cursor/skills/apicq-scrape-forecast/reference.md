@@ -33,6 +33,8 @@ Bank of Canada Valet: `V39079` (overnight), `V80691335` (5-year posted mortgage)
 
 Inscriptions clip: 82–122 % of last actual. Prix clip: 85–112 % of last actual.
 
+Spring pulse (`FORECAST.spring`): April/May ventes vs the prior year. Either month lower → `slow`. `price_lag` when ventes YoY is negative and prix YoY is still about flat or up. That bias caps a ventes rebound and blocks further price appreciation.
+
 ## HTML
 
 `ile-montreal.html` is self-contained (Chart.js CDN). Data is inline so `file://` works.

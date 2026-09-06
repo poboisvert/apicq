@@ -58,11 +58,14 @@ That writes `data/forecast-6m.json` and patches `const FORECAST` between `// FOR
 
 Model: `RidgeCV` + `StandardScaler`. Features: month seasonality, trend, lags 1/2/3/12, Québec employment and unemployment, Québec CPI, Québec housing starts, Canada monthly GDP (no official Québec monthly GDP), Bank of Canada overnight / 5-year mortgage / 5-year bond (rates persist). Horizon default: **9 months**.
 
+Spring rule: if April or May ventes are lower than the same month a year earlier, treat it as a slowing market. Compare that volume drop with median price. When sales fall and prices still hold, volume is leading — the forecast damps ventes and does not keep lifting prices.
+
 After a scrape, also refresh the inline `TIMELINE` / `COPRO` / `PLEX` arrays in `ile-montreal.html` so charts match JSON.
 
 ## Chart rules
 
 - Dotted lines = official sklearn forecast.
+- Ventes chart: a dashed line connects each year’s highest month (pics annuels), Dec/Jan excluded.
 - **Drop décembre and janvier** from every chart and from the forecast table. Listings expire in December and are renewed in February; those months look like a crash. Keep them in the monthly PDF table only.
 - Lines connect novembre → février.
 - Inscriptions chart: Ridge for the 9-month horizon; seasonal inventory path only after that, for buy zones.

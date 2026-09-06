@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T16:59:01.100854+00:00",
+  "generated_at": "2026-09-06T12:26:17.212020+00:00",
   "horizon_months": 9,
   "model": "RidgeCV + StandardScaler (sklearn)",
   "last_actual": "08/26",
@@ -16,109 +16,109 @@
   ],
   "cv_mae": {
     "copropriete": {
-      "ventes": 160.2,
-      "inscriptions": 333.0,
-      "prix": 11523.6,
-      "jours": 9.8
+      "ventes": 98.7,
+      "inscriptions": 430.3,
+      "prix": 12633.1,
+      "jours": 9.6
     },
     "plex": {
-      "ventes": 40.1,
-      "inscriptions": 123.5,
-      "prix": 23294.0,
-      "jours": 18.1
+      "ventes": 40.9,
+      "inscriptions": 117.7,
+      "prix": 28429.1,
+      "jours": 19.0
     }
   },
   "forecast": {
     "copropriete": {
       "ventes": [
-        561.0,
-        553.0,
-        534.0,
-        519.0,
-        548.0,
-        689.0,
-        857.0,
-        929.0,
-        890.0
+        524.0,
+        530.0,
+        518.0,
+        486.0,
+        488.0,
+        629.0,
+        780.0,
+        833.0,
+        808.0
       ],
       "inscriptions": [
-        6904.0,
-        6884.0,
-        6720.0,
-        6720.0,
-        6720.0,
-        6720.0,
-        6815.0,
-        7088.0,
-        7342.0
+        6895.0,
+        6896.0,
+        6742.0,
+        6461.0,
+        6359.0,
+        6574.0,
+        6970.0,
+        7359.0,
+        7642.0
       ],
       "prix": [
+        472000.0,
+        473000.0,
+        472000.0,
+        471000.0,
         470000.0,
-        475500.0,
-        479500.0,
-        484500.0,
-        486500.0,
-        488500.0,
-        489000.0,
-        489500.0,
-        490000.0
+        469000.0,
+        467500.0,
+        466500.0,
+        465500.0
       ],
       "jours": [
-        68.0,
-        67.0,
+        70.0,
         69.0,
-        71.0,
+        70.0,
+        74.0,
+        77.0,
         72.0,
-        67.0,
-        61.0,
-        58.0,
-        55.0
+        66.0,
+        63.0,
+        60.0
       ]
     },
     "plex": {
       "ventes": [
-        209.0,
+        178.0,
+        186.0,
+        193.0,
+        174.0,
+        149.0,
+        173.0,
+        207.0,
         227.0,
-        235.0,
-        222.0,
-        205.0,
-        224.0,
-        253.0,
-        272.0,
-        280.0
+        238.0
       ],
       "inscriptions": [
-        1675.0,
-        1674.0,
-        1609.0,
-        1609.0,
-        1609.0,
-        1609.0,
-        1542.0,
-        1618.0,
-        1681.0
+        1710.0,
+        1730.0,
+        1652.0,
+        1523.0,
+        1463.0,
+        1509.0,
+        1629.0,
+        1739.0,
+        1781.0
       ],
       "prix": [
-        896000.0,
-        896500.0,
-        897000.0,
-        904500.0,
-        909500.0,
-        923000.0,
-        930500.0,
-        934500.0,
-        938500.0
+        868000.0,
+        866000.0,
+        863500.0,
+        861500.0,
+        859500.0,
+        857500.0,
+        855000.0,
+        853000.0,
+        851000.0
       ],
       "jours": [
-        46.0,
-        46.0,
-        50.0,
-        54.0,
-        55.0,
-        54.0,
-        51.0,
         48.0,
-        46.0
+        47.0,
+        49.0,
+        52.0,
+        53.0,
+        53.0,
+        52.0,
+        50.0,
+        47.0
       ]
     }
   },
@@ -264,6 +264,75 @@
     "Canada monthly GDP",
     "Québec CPI",
     "Québec housing starts",
-    "overnight rate, 5-year mortgage, 5-year bond (t-1)"
-  ]
+    "overnight rate, 5-year mortgage, 5-year bond (t-1)",
+    "April/May year-over-year ventes (slowing if either month is lower)",
+    "April/May year-over-year median price (volume vs price)"
+  ],
+  "spring": {
+    "rule": "If April or May ventes are lower than the same month a year earlier, the market is slowing. Compare that volume signal with median price: when sales fall and prices still hold, volume is leading.",
+    "last_year": 2026,
+    "prior_year": 2025,
+    "categories": {
+      "copropriete": {
+        "comparable": true,
+        "slow": true,
+        "april_lower": true,
+        "may_lower": true,
+        "ventes_yoy": -0.0788,
+        "prix_yoy": -0.0035,
+        "price_lag": true,
+        "months": {
+          "april": {
+            "ventes": 972.0,
+            "ventes_prev": 1051.0,
+            "ventes_yoy": -0.0752,
+            "prix": 480000.0,
+            "prix_prev": 475000.0,
+            "prix_yoy": 0.0105,
+            "lower": true
+          },
+          "may": {
+            "ventes": 924.0,
+            "ventes_prev": 1007.0,
+            "ventes_yoy": -0.0824,
+            "prix": 479000.0,
+            "prix_prev": 487531.0,
+            "prix_yoy": -0.0175,
+            "lower": true
+          }
+        },
+        "reading": "Copropriété : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."
+      },
+      "plex": {
+        "comparable": true,
+        "slow": true,
+        "april_lower": true,
+        "may_lower": true,
+        "ventes_yoy": -0.0872,
+        "prix_yoy": 0.0433,
+        "price_lag": true,
+        "months": {
+          "april": {
+            "ventes": 277.0,
+            "ventes_prev": 293.0,
+            "ventes_yoy": -0.0546,
+            "prix": 900000.0,
+            "prix_prev": 860000.0,
+            "prix_yoy": 0.0465,
+            "lower": true
+          },
+          "may": {
+            "ventes": 294.0,
+            "ventes_prev": 334.0,
+            "ventes_yoy": -0.1198,
+            "prix": 908750.0,
+            "prix_prev": 873750.0,
+            "prix_yoy": 0.0401,
+            "lower": true
+          }
+        },
+        "reading": "Plex (2-5) : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."
+      }
+    }
+  }
 }

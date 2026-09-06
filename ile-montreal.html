@@ -128,6 +128,8 @@
     }
     .legend-buy .swatch { background: rgba(42, 122, 75, 0.22); }
     .legend-buy .swatch-hard { background: rgba(26, 92, 52, 0.40); }
+    .pct.down { color: var(--y26); }
+    .pct.up { color: var(--plex); }
     @media (max-width: 800px) {
       .stats, .split { grid-template-columns: 1fr 1fr; }
     }
@@ -170,12 +172,13 @@
 
     <div class="callout">
       <strong>Prévision 9 mois (Ridge, scikit-learn)</strong>
-      Les pointillés prolongent chaque série jusqu’en mai 2027. Sur Inscriptions en vigueur, le Ridge suit la saison (baisse d’hiver, reprise au printemps) plutôt qu’une hausse linéaire. Le modèle utilise la saisonnalité, les retards 1/2/3/12 mois, l’emploi et le chômage du Québec, l’IPC Québec, les mises en chantier Québec, le PIB mensuel du Canada (le Québec n’en publie pas au mois), plus le taux directeur, l’hypothèque 5 ans et l’obligation 5 ans de la Banque du Canada. Les taux sont tenus au dernier niveau observé; les autres indicateurs macro sont projetés. Ce n’est pas une prévision officielle APCIQ.
+      Les pointillés prolongent chaque série jusqu’en mai 2027. Sur Inscriptions en vigueur, le Ridge suit la saison (baisse d’hiver, reprise au printemps) plutôt qu’une hausse linéaire. Si avril ou mai sont plus faibles que l’année précédente, le modèle lit un ralentissement et compare ce volume au prix médian (quand les ventes baissent et que le prix tient, le volume précède). Le modèle utilise aussi la saisonnalité, les retards 1/2/3/12 mois, l’emploi et le chômage du Québec, l’IPC Québec, les mises en chantier Québec, le PIB mensuel du Canada (le Québec n’en publie pas au mois), plus le taux directeur, l’hypothèque 5 ans et l’obligation 5 ans de la Banque du Canada. Les taux sont tenus au dernier niveau observé; les autres indicateurs macro sont projetés. Ce n’est pas une prévision officielle APCIQ.
     </div>
 
     <h2>Ventes totales</h2>
     <p class="meta" id="cap-ventes">Transactions Centris du mois · Île de Montréal</p>
     <div class="chart-wrap"><canvas id="chart-ventes"></canvas></div>
+    <p class="meta" id="peak-months"></p>
 
     <h2>Inscriptions en vigueur</h2>
     <p class="meta" id="cap-inscriptions">Offre active en fin de mois · Île de Montréal · décembre et janvier retirés (inscriptions expirées, renouvelées en février)</p>
@@ -199,6 +202,22 @@
 
     <h2>Prévision sept. 2026 – mai 2027</h2>
     <p class="meta">Pointillés sur les graphiques en vue chronologie · RidgeCV, sklearn</p>
+    <div class="callout" id="spring-callout"></div>
+    <div class="table-scroll" style="max-height:none; margin-bottom:16px">
+      <table>
+        <thead>
+          <tr>
+            <th>Catégorie</th>
+            <th>Mois</th>
+            <th class="num">Ventes</th>
+            <th class="num">vs année préc.</th>
+            <th class="num">Prix médian</th>
+            <th class="num">vs année préc.</th>
+          </tr>
+        </thead>
+        <tbody id="spring-body"></tbody>
+      </table>
+    </div>
     <div class="table-scroll" style="max-height:none">
       <table>
         <thead>
@@ -294,7 +313,7 @@
       jours: [57,73,59,70,66,56,46,66,58,66,59,47,45,48,46,57,61,49,44,42,37,47,51,54,56,46,49,62,54,56,46,43,44,48,50,53,53,57,61,74,88,73,75,68,70,68,74,56,65,78,92,76,76,74,74,68,75,92,76,67,72,78,72,78,76,54,47,48,56,56,50,52,59,52,71,51,56,48,43,43,48,54]
     };
     // FORECAST_START
-    const FORECAST = {"generated_at": "2026-09-05T16:59:01.100854+00:00", "horizon_months": 9, "model": "RidgeCV + StandardScaler (sklearn)", "last_actual": "08/26", "labels": ["09/26", "10/26", "11/26", "12/26", "01/27", "02/27", "03/27", "04/27", "05/27"], "cv_mae": {"copropriete": {"ventes": 160.2, "inscriptions": 333.0, "prix": 11523.6, "jours": 9.8}, "plex": {"ventes": 40.1, "inscriptions": 123.5, "prix": 23294.0, "jours": 18.1}}, "forecast": {"copropriete": {"ventes": [561.0, 553.0, 534.0, 519.0, 548.0, 689.0, 857.0, 929.0, 890.0], "inscriptions": [6904.0, 6884.0, 6720.0, 6554.0, 6501.0, 6598.0, 6815.0, 7088.0, 7342.0], "prix": [470000.0, 475500.0, 479500.0, 484500.0, 486500.0, 488500.0, 489000.0, 489500.0, 490000.0], "jours": [68.0, 67.0, 69.0, 71.0, 72.0, 67.0, 61.0, 58.0, 55.0]}, "plex": {"ventes": [209.0, 227.0, 235.0, 222.0, 205.0, 224.0, 253.0, 272.0, 280.0], "inscriptions": [1675.0, 1674.0, 1609.0, 1525.0, 1475.0, 1484.0, 1542.0, 1618.0, 1681.0], "prix": [896000.0, 896500.0, 897000.0, 904500.0, 909500.0, 923000.0, 930500.0, 934500.0, 938500.0], "jours": [46.0, 46.0, 50.0, 54.0, 55.0, 54.0, 51.0, 48.0, 46.0]}}, "last_values": {"copropriete": {"ventes": 562.0, "inscriptions": 6789.0, "prix": 475000.0, "jours": 72.0}, "plex": {"ventes": 179.0, "inscriptions": 1622.0, "prix": 870000.0, "jours": 54.0}}, "economy": {"latest": {"qc_employment": 4588.7, "qc_unemp_rate": 5.6, "ca_gdp": 2369309.0, "qc_cpi": 167.0, "qc_starts": 63.666, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, "path": [{"label": "09/26", "qc_employment": 4625.248, "qc_unemp_rate": 5.212, "ca_gdp": 2381219.829, "qc_cpi": 167.031, "qc_starts": 60.131, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "10/26", "qc_employment": 4653.16, "qc_unemp_rate": 4.925, "ca_gdp": 2390928.164, "qc_cpi": 167.011, "qc_starts": 58.682, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "11/26", "qc_employment": 4670.514, "qc_unemp_rate": 4.77, "ca_gdp": 2397297.725, "qc_cpi": 167.057, "qc_starts": 58.217, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "12/26", "qc_employment": 4676.907, "qc_unemp_rate": 4.752, "ca_gdp": 2399951.305, "qc_cpi": 167.24, "qc_starts": 58.234, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "01/27", "qc_employment": 4674.449, "qc_unemp_rate": 4.865, "ca_gdp": 2399427.324, "qc_cpi": 167.622, "qc_starts": 57.915, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "02/27", "qc_employment": 4667.586, "qc_unemp_rate": 5.043, "ca_gdp": 2397133.398, "qc_cpi": 168.163, "qc_starts": 57.967, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "03/27", "qc_employment": 4660.729, "qc_unemp_rate": 5.256, "ca_gdp": 2394897.311, "qc_cpi": 168.803, "qc_starts": 58.589, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "04/27", "qc_employment": 4659.09, "qc_unemp_rate": 5.396, "ca_gdp": 2394681.09, "qc_cpi": 169.477, "qc_starts": 57.86, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "05/27", "qc_employment": 4665.755, "qc_unemp_rate": 5.451, "ca_gdp": 2397838.72, "qc_cpi": 170.061, "qc_starts": 57.058, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}]}, "sources": ["StatCan 14-10-0287-01 — Québec employment and unemployment, seasonally adjusted", "StatCan 36-10-0434-01 — Canada monthly GDP (Québec has no official monthly GDP)", "StatCan 18-10-0004-01 — Québec CPI, all-items", "StatCan 34-10-0158-01 — Québec housing starts, SAAR", "Bank of Canada Valet — overnight target, 5-year posted mortgage, 5-year GoC bond"], "features": ["month seasonality", "trend", "lags 1/2/3/12 of the housing series", "Québec employment and unemployment rate", "Canada monthly GDP", "Québec CPI", "Québec housing starts", "overnight rate, 5-year mortgage, 5-year bond (t-1)"]};
+    const FORECAST = {"generated_at": "2026-09-06T12:26:17.212020+00:00", "horizon_months": 9, "model": "RidgeCV + StandardScaler (sklearn)", "last_actual": "08/26", "labels": ["09/26", "10/26", "11/26", "12/26", "01/27", "02/27", "03/27", "04/27", "05/27"], "cv_mae": {"copropriete": {"ventes": 98.7, "inscriptions": 430.3, "prix": 12633.1, "jours": 9.6}, "plex": {"ventes": 40.9, "inscriptions": 117.7, "prix": 28429.1, "jours": 19.0}}, "forecast": {"copropriete": {"ventes": [524.0, 530.0, 518.0, 486.0, 488.0, 629.0, 780.0, 833.0, 808.0], "inscriptions": [6895.0, 6896.0, 6742.0, 6461.0, 6359.0, 6574.0, 6970.0, 7359.0, 7642.0], "prix": [472000.0, 473000.0, 472000.0, 471000.0, 470000.0, 469000.0, 467500.0, 466500.0, 465500.0], "jours": [70.0, 69.0, 70.0, 74.0, 77.0, 72.0, 66.0, 63.0, 60.0]}, "plex": {"ventes": [178.0, 186.0, 193.0, 174.0, 149.0, 173.0, 207.0, 227.0, 238.0], "inscriptions": [1710.0, 1730.0, 1652.0, 1523.0, 1463.0, 1509.0, 1629.0, 1739.0, 1781.0], "prix": [868000.0, 866000.0, 863500.0, 861500.0, 859500.0, 857500.0, 855000.0, 853000.0, 851000.0], "jours": [48.0, 47.0, 49.0, 52.0, 53.0, 53.0, 52.0, 50.0, 47.0]}}, "last_values": {"copropriete": {"ventes": 562.0, "inscriptions": 6789.0, "prix": 475000.0, "jours": 72.0}, "plex": {"ventes": 179.0, "inscriptions": 1622.0, "prix": 870000.0, "jours": 54.0}}, "economy": {"latest": {"qc_employment": 4588.7, "qc_unemp_rate": 5.6, "ca_gdp": 2369309.0, "qc_cpi": 167.0, "qc_starts": 63.666, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, "path": [{"label": "09/26", "qc_employment": 4625.248, "qc_unemp_rate": 5.212, "ca_gdp": 2381219.829, "qc_cpi": 167.031, "qc_starts": 60.131, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "10/26", "qc_employment": 4653.16, "qc_unemp_rate": 4.925, "ca_gdp": 2390928.164, "qc_cpi": 167.011, "qc_starts": 58.682, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "11/26", "qc_employment": 4670.514, "qc_unemp_rate": 4.77, "ca_gdp": 2397297.725, "qc_cpi": 167.057, "qc_starts": 58.217, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "12/26", "qc_employment": 4676.907, "qc_unemp_rate": 4.752, "ca_gdp": 2399951.305, "qc_cpi": 167.24, "qc_starts": 58.234, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "01/27", "qc_employment": 4674.449, "qc_unemp_rate": 4.865, "ca_gdp": 2399427.324, "qc_cpi": 167.622, "qc_starts": 57.915, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "02/27", "qc_employment": 4667.586, "qc_unemp_rate": 5.043, "ca_gdp": 2397133.398, "qc_cpi": 168.163, "qc_starts": 57.967, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "03/27", "qc_employment": 4660.729, "qc_unemp_rate": 5.256, "ca_gdp": 2394897.311, "qc_cpi": 168.803, "qc_starts": 58.589, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "04/27", "qc_employment": 4659.09, "qc_unemp_rate": 5.396, "ca_gdp": 2394681.09, "qc_cpi": 169.477, "qc_starts": 57.86, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}, {"label": "05/27", "qc_employment": 4665.755, "qc_unemp_rate": 5.451, "ca_gdp": 2397838.72, "qc_cpi": 170.061, "qc_starts": 57.058, "overnight": 2.25, "mortgage_5y": 6.09, "bond_5y": 3.33}]}, "sources": ["StatCan 14-10-0287-01 — Québec employment and unemployment, seasonally adjusted", "StatCan 36-10-0434-01 — Canada monthly GDP (Québec has no official monthly GDP)", "StatCan 18-10-0004-01 — Québec CPI, all-items", "StatCan 34-10-0158-01 — Québec housing starts, SAAR", "Bank of Canada Valet — overnight target, 5-year posted mortgage, 5-year GoC bond"], "features": ["month seasonality", "trend", "lags 1/2/3/12 of the housing series", "Québec employment and unemployment rate", "Canada monthly GDP", "Québec CPI", "Québec housing starts", "overnight rate, 5-year mortgage, 5-year bond (t-1)", "April/May year-over-year ventes (slowing if either month is lower)", "April/May year-over-year median price (volume vs price)"], "spring": {"rule": "If April or May ventes are lower than the same month a year earlier, the market is slowing. Compare that volume signal with median price: when sales fall and prices still hold, volume is leading.", "last_year": 2026, "prior_year": 2025, "categories": {"copropriete": {"comparable": true, "slow": true, "april_lower": true, "may_lower": true, "ventes_yoy": -0.0788, "prix_yoy": -0.0035, "price_lag": true, "months": {"april": {"ventes": 972.0, "ventes_prev": 1051.0, "ventes_yoy": -0.0752, "prix": 480000.0, "prix_prev": 475000.0, "prix_yoy": 0.0105, "lower": true}, "may": {"ventes": 924.0, "ventes_prev": 1007.0, "ventes_yoy": -0.0824, "prix": 479000.0, "prix_prev": 487531.0, "prix_yoy": -0.0175, "lower": true}}, "reading": "Copropriété : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."}, "plex": {"comparable": true, "slow": true, "april_lower": true, "may_lower": true, "ventes_yoy": -0.0872, "prix_yoy": 0.0433, "price_lag": true, "months": {"april": {"ventes": 277.0, "ventes_prev": 293.0, "ventes_yoy": -0.0546, "prix": 900000.0, "prix_prev": 860000.0, "prix_yoy": 0.0465, "lower": true}, "may": {"ventes": 294.0, "ventes_prev": 334.0, "ventes_yoy": -0.1198, "prix": 908750.0, "prix_prev": 873750.0, "prix_yoy": 0.0401, "lower": true}}, "reading": "Plex (2-5) : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."}}}};
     // FORECAST_END
     const YEAR_COLORS = { 2021: "#6b6860", 2022: "#2b6cb0", 2024: "#2a7a4b", 2025: "#b7791f", 2026: "#b42318" };
     const ROWS = TIMELINE.map((label, idx) => {
@@ -313,6 +332,16 @@
 
     function fmtInt(n) { return n.toLocaleString("fr-CA"); }
     function fmtPrice(n) { return `${n.toLocaleString("fr-CA")} $`; }
+    function fmtPct(n) {
+      if (n == null || Number.isNaN(n)) return "—";
+      const pct = Math.round(n * 1000) / 10;
+      const sign = pct > 0 ? "+" : "";
+      return `${sign}${pct.toLocaleString("fr-CA")} %`;
+    }
+    function pctClass(n) {
+      if (n == null || Number.isNaN(n) || n === 0) return "pct";
+      return n < 0 ? "pct down" : "pct up";
+    }
 
     function skipChartMonth(label) {
       const month = String(label).slice(0, 2);
@@ -533,6 +562,48 @@
       return values.concat(Array(labels.length - values.length).fill(null));
     }
 
+    function yearlyPeaks(kind) {
+      const byYear = {};
+      ROWS.forEach((row) => {
+        if (skipChartMonth(row.label)) return;
+        const value = row[kind].v;
+        if (value == null) return;
+        if (!byYear[row.year]) {
+          byYear[row.year] = { year: row.year, label: row.label, month: row.month, value, count: 0 };
+        }
+        byYear[row.year].count += 1;
+        if (value > byYear[row.year].value) {
+          byYear[row.year].label = row.label;
+          byYear[row.year].month = row.month;
+          byYear[row.year].value = value;
+        }
+      });
+      return Object.values(byYear)
+        .filter((item) => item.count >= 4)
+        .sort((a, b) => a.year - b.year);
+    }
+
+    function peakTrendLine(kind, labels, color, name) {
+      const peaks = yearlyPeaks(kind);
+      const atLabel = Object.fromEntries(peaks.map((peak) => [peak.label, peak.value]));
+      return {
+        label: name,
+        data: padTo(labels.map((label) => (label in atLabel ? atLabel[label] : null)), labels),
+        color,
+        dash: [8, 4],
+        points: true,
+        width: 2,
+        tension: 0
+      };
+    }
+
+    function peakCaption(kind, label) {
+      const peaks = yearlyPeaks(kind);
+      if (!peaks.length) return "";
+      const bits = peaks.map((peak) => `${MONTH_FR[peak.month]} ${peak.year} ${fmtInt(peak.value)}`);
+      return `${label} : ${bits.join(" · ")}`;
+    }
+
     function series(field, labels) {
       const map = { v: "ventes", i: "inscriptions", p: "prix", j: "jours" };
       const key = map[field];
@@ -555,6 +626,7 @@
         out.push({ label: "Copropriété", data: padTo(chartHistory(COPRO[key]), labels), color: "#1f4e79" });
         const forecast = forecastLine("copropriete", key, "#1f4e79", "Copro prévision");
         if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
+        if (field === "v") out.push(peakTrendLine("copro", labels, "#9b2c2c", "Copro pics annuels"));
         if (field === "i") {
           const path = condoInventoryPath();
           const official = chartForecastLabels().length;
@@ -575,6 +647,7 @@
         out.push({ label: "Plex (2-5)", data: padTo(chartHistory(PLEX[key]), labels), color: "#2a7a4b" });
         const forecast = forecastLine("plex", key, "#2a7a4b", "Plex prévision");
         if (forecast) out.push({ ...forecast, data: padTo(forecast.data, labels) });
+        if (field === "v") out.push(peakTrendLine("plex", labels, "#c05621", "Plex pics annuels"));
       }
       return out;
     }
@@ -585,10 +658,10 @@
         data: item.data,
         borderColor: item.color,
         backgroundColor: item.color,
-        borderWidth: 2,
-        pointRadius: (item.points || state.view === "seasonal") ? 3 : 0,
-        pointHoverRadius: 4,
-        tension: 0.15,
+        borderWidth: item.width || 2,
+        pointRadius: item.points ? 4 : (state.view === "seasonal" ? 3 : 0),
+        pointHoverRadius: 5,
+        tension: item.tension != null ? item.tension : 0.15,
         borderDash: item.dash || [],
         spanGaps: true
       };
@@ -681,7 +754,47 @@
       }).filter((row) => row.copro.v != null);
     }
 
+    function renderSpringPulse() {
+      const spring = FORECAST.spring || {};
+      const box = document.getElementById("spring-callout");
+      const body = document.getElementById("spring-body");
+      if (!box || !body) return;
+      const showCopro = state.category !== "plex";
+      const showPlex = state.category !== "copro";
+      const cats = [];
+      if (showCopro && spring.categories && spring.categories.copropriete) {
+        cats.push(["Copropriété", spring.categories.copropriete]);
+      }
+      if (showPlex && spring.categories && spring.categories.plex) {
+        cats.push(["Plex (2-5)", spring.categories.plex]);
+      }
+      const year = spring.last_year;
+      const prior = spring.prior_year;
+      const readings = cats.map(([, item]) => item.reading).filter(Boolean);
+      box.innerHTML = `<strong>Avril–mai ${year && prior ? `${year} vs ${prior}` : ""}</strong>
+        Si avril ou mai sont plus faibles que l’année précédente, c’est un mauvais signe : le marché ralentit. On compare ce volume au prix médian.
+        ${readings.map((text) => `<p style="margin:8px 0 0">${text}</p>`).join("")}`;
+      const monthFr = { april: "Avril", may: "Mai" };
+      const rows = [];
+      cats.forEach(([label, item]) => {
+        ["april", "may"].forEach((key) => {
+          const month = (item.months || {})[key];
+          if (!month || month.ventes == null) return;
+          rows.push(`<tr>
+            <td>${label}</td>
+            <td>${monthFr[key]} ${year}</td>
+            <td class="num">${fmtInt(month.ventes)} <span class="meta">(${fmtInt(month.ventes_prev)})</span></td>
+            <td class="num ${pctClass(month.ventes_yoy)}">${fmtPct(month.ventes_yoy)}</td>
+            <td class="num">${fmtPrice(month.prix)} <span class="meta">(${fmtPrice(month.prix_prev)})</span></td>
+            <td class="num ${pctClass(month.prix_yoy)}">${fmtPct(month.prix_yoy)}</td>
+          </tr>`);
+        });
+      });
+      body.innerHTML = rows.join("");
+    }
+
     function renderForecastTables() {
+      renderSpringPulse();
       const showCopro = state.category !== "plex";
       const showPlex = state.category !== "copro";
       const html = [];
@@ -740,7 +853,11 @@
       document.getElementById("cap-ventes").textContent =
         state.view === "seasonal"
           ? "Transactions Centris du mois · Île de Montréal · février–août, années complètes seulement"
-          : "Transactions Centris du mois · Île de Montréal · sept. 2019 – août 2026, prévision pointillée 9 mois jusqu’en mai 2027";
+          : "Transactions Centris du mois · Île de Montréal · ligne des pics annuels · prévision pointillée 9 mois jusqu’en mai 2027";
+      const peakNotes = [];
+      if (state.view === "timeline" && state.category !== "plex") peakNotes.push(peakCaption("copro", "Copro"));
+      if (state.view === "timeline" && state.category !== "copro") peakNotes.push(peakCaption("plex", "Plex"));
+      document.getElementById("peak-months").textContent = peakNotes.join("  ·  ");
       const path = condoInventoryPath();
       const softAt = firstAtLeast(path.implied, BUY_SOFT);
       const hardAt = firstAtLeast(path.implied, BUY_HARD);
