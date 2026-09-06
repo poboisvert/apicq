@@ -8,7 +8,14 @@ Four series: ventes totales, inscriptions en vigueur, prix médian, moyenne de j
 
 Open the report: [ile-montreal.html](https://poboisvert.github.io/apicq/ile-montreal.html)
 
-The chronology charts extend nine months with a dotted sklearn forecast (septembre 2026 – mai 2027), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, and Bank of Canada rates.
+Filters: Les deux / Copropriété / Plex, and Chronologie / Fév–août. Chronology charts carry a dotted sklearn forecast through mai 2027 (Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, Bank of Canada rates).
+
+## Chart conventions
+
+- **Décembre and janvier are omitted** from every chart and from the forecast table. Listings expire at year-end and are renewed in February, so those months look like a crash. They stay in the monthly PDF table. Lines connect novembre → février.
+- Dotted lines are the 9-month Ridge forecast (septembre 2026 – mai 2027).
+- On **Inscriptions en vigueur**, green buy zones apply to condos only: souple ≥ 90 estimated days, ferme ≥ 120. After mai 2027 the inventory path is seasonal, not Ridge.
+- Condo median price 357k → 475k is **+33 %**, not a doubling.
 
 ## Coverage
 
@@ -46,7 +53,7 @@ python scripts/fetch_monthly_stats.py --years 2024 2025 2026
 Refresh the 9-month forecast (needs network for StatCan and the Bank of Canada):
 
 ```bash
-python scripts/forecast_six_months.py
+python scripts/forecast_six_months.py --horizon 9
 ```
 
 Outputs:
