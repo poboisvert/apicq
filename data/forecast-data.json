@@ -1,0 +1,648 @@
+{
+  "generated_at": "2026-09-08T12:50:43.944422+00:00",
+  "horizon_months": 9,
+  "model": "RidgeCV + StandardScaler (sklearn)",
+  "train_rule": "Fit Ridge on last calendar year plus the last 3 or 9 months of the origin year. Lags 1/2/3/12 still read earlier APCIQ months.",
+  "default_window": "prior_plus_9",
+  "selected_year": 2026,
+  "last_actual": "08/26",
+  "windows": {
+    "prior_plus_3": {
+      "id": "prior_plus_3",
+      "label": "Année précédente + 3 mois récents",
+      "selected_year": 2026,
+      "prior_year": 2025,
+      "recent_months": 3,
+      "n_train": 15,
+      "train_months": [
+        "01/25",
+        "02/25",
+        "03/25",
+        "04/25",
+        "05/25",
+        "06/25",
+        "07/25",
+        "08/25",
+        "09/25",
+        "10/25",
+        "11/25",
+        "12/25",
+        "06/26",
+        "07/26",
+        "08/26"
+      ],
+      "caption": "janv.–déc. 2025 et juin–août 2026",
+      "cv_mae": {
+        "copropriete": {
+          "ventes": 102.2,
+          "inscriptions": 325.8,
+          "prix": 7443.7,
+          "jours": 7.6
+        },
+        "plex": {
+          "ventes": 65.4,
+          "inscriptions": 69.7,
+          "prix": 22120.7,
+          "jours": 6.3
+        }
+      },
+      "forecast": {
+        "copropriete": {
+          "ventes": [
+            675.0,
+            519.0,
+            309.0,
+            309.0,
+            309.0,
+            309.0,
+            437.0,
+            535.0,
+            499.0
+          ],
+          "inscriptions": [
+            7299.0,
+            7505.0,
+            7188.0,
+            6455.0,
+            6491.0,
+            7118.0,
+            7601.0,
+            7729.0,
+            7759.0
+          ],
+          "prix": [
+            474000.0,
+            473000.0,
+            458000.0,
+            457000.0,
+            462000.0,
+            469000.0,
+            467500.0,
+            466500.0,
+            465500.0
+          ],
+          "jours": [
+            75.0,
+            80.0,
+            84.0,
+            90.0,
+            94.0,
+            82.0,
+            75.0,
+            72.0,
+            66.0
+          ]
+        },
+        "plex": {
+          "ventes": [
+            206.0,
+            228.0,
+            239.0,
+            213.0,
+            187.0,
+            214.0,
+            243.0,
+            258.0,
+            260.0
+          ],
+          "inscriptions": [
+            1749.0,
+            1746.0,
+            1626.0,
+            1429.0,
+            1400.0,
+            1484.0,
+            1635.0,
+            1719.0,
+            1723.0
+          ],
+          "prix": [
+            868000.0,
+            866000.0,
+            863500.0,
+            861500.0,
+            859500.0,
+            857500.0,
+            855000.0,
+            853000.0,
+            851000.0
+          ],
+          "jours": [
+            52.0,
+            55.0,
+            58.0,
+            60.0,
+            60.0,
+            58.0,
+            55.0,
+            52.0,
+            48.0
+          ]
+        }
+      }
+    },
+    "prior_plus_9": {
+      "id": "prior_plus_9",
+      "label": "Année précédente + 9 mois de l’année",
+      "selected_year": 2026,
+      "prior_year": 2025,
+      "recent_months": 9,
+      "n_train": 20,
+      "train_months": [
+        "01/25",
+        "02/25",
+        "03/25",
+        "04/25",
+        "05/25",
+        "06/25",
+        "07/25",
+        "08/25",
+        "09/25",
+        "10/25",
+        "11/25",
+        "12/25",
+        "01/26",
+        "02/26",
+        "03/26",
+        "04/26",
+        "05/26",
+        "06/26",
+        "07/26",
+        "08/26"
+      ],
+      "caption": "janv.–déc. 2025 et janv.–août 2026",
+      "cv_mae": {
+        "copropriete": {
+          "ventes": 104.4,
+          "inscriptions": 266.6,
+          "prix": 6715.7,
+          "jours": 8.3
+        },
+        "plex": {
+          "ventes": 79.9,
+          "inscriptions": 103.0,
+          "prix": 28155.9,
+          "jours": 9.3
+        }
+      },
+      "forecast": {
+        "copropriete": {
+          "ventes": [
+            539.0,
+            512.0,
+            400.0,
+            309.0,
+            309.0,
+            463.0,
+            652.0,
+            665.0,
+            598.0
+          ],
+          "inscriptions": [
+            7306.0,
+            7633.0,
+            7526.0,
+            6909.0,
+            6858.0,
+            7351.0,
+            7899.0,
+            8159.0,
+            8201.0
+          ],
+          "prix": [
+            474000.0,
+            473000.0,
+            472000.0,
+            469000.0,
+            467500.0,
+            469000.0,
+            467500.0,
+            466500.0,
+            465500.0
+          ],
+          "jours": [
+            75.0,
+            80.0,
+            83.0,
+            90.0,
+            96.0,
+            83.0,
+            77.0,
+            73.0,
+            68.0
+          ]
+        },
+        "plex": {
+          "ventes": [
+            214.0,
+            226.0,
+            229.0,
+            188.0,
+            154.0,
+            183.0,
+            220.0,
+            240.0,
+            248.0
+          ],
+          "inscriptions": [
+            1756.0,
+            1787.0,
+            1700.0,
+            1539.0,
+            1529.0,
+            1632.0,
+            1781.0,
+            1855.0,
+            1842.0
+          ],
+          "prix": [
+            868000.0,
+            866000.0,
+            863500.0,
+            861500.0,
+            859500.0,
+            857500.0,
+            855000.0,
+            853000.0,
+            851000.0
+          ],
+          "jours": [
+            50.0,
+            55.0,
+            58.0,
+            61.0,
+            62.0,
+            59.0,
+            56.0,
+            51.0,
+            48.0
+          ]
+        }
+      }
+    }
+  },
+  "cv_mae": {
+    "copropriete": {
+      "ventes": 104.4,
+      "inscriptions": 266.6,
+      "prix": 6715.7,
+      "jours": 8.3
+    },
+    "plex": {
+      "ventes": 79.9,
+      "inscriptions": 103.0,
+      "prix": 28155.9,
+      "jours": 9.3
+    }
+  },
+  "forecast": {
+    "copropriete": {
+      "ventes": [
+        539.0,
+        512.0,
+        400.0,
+        309.0,
+        309.0,
+        463.0,
+        652.0,
+        665.0,
+        598.0
+      ],
+      "inscriptions": [
+        7306.0,
+        7633.0,
+        7526.0,
+        6909.0,
+        6858.0,
+        7351.0,
+        7899.0,
+        8159.0,
+        8201.0
+      ],
+      "prix": [
+        474000.0,
+        473000.0,
+        472000.0,
+        469000.0,
+        467500.0,
+        469000.0,
+        467500.0,
+        466500.0,
+        465500.0
+      ],
+      "jours": [
+        75.0,
+        80.0,
+        83.0,
+        90.0,
+        96.0,
+        83.0,
+        77.0,
+        73.0,
+        68.0
+      ]
+    },
+    "plex": {
+      "ventes": [
+        214.0,
+        226.0,
+        229.0,
+        188.0,
+        154.0,
+        183.0,
+        220.0,
+        240.0,
+        248.0
+      ],
+      "inscriptions": [
+        1756.0,
+        1787.0,
+        1700.0,
+        1539.0,
+        1529.0,
+        1632.0,
+        1781.0,
+        1855.0,
+        1842.0
+      ],
+      "prix": [
+        868000.0,
+        866000.0,
+        863500.0,
+        861500.0,
+        859500.0,
+        857500.0,
+        855000.0,
+        853000.0,
+        851000.0
+      ],
+      "jours": [
+        50.0,
+        55.0,
+        58.0,
+        61.0,
+        62.0,
+        59.0,
+        56.0,
+        51.0,
+        48.0
+      ]
+    }
+  },
+  "window": {
+    "id": "prior_plus_9",
+    "label": "Année précédente + 9 mois de l’année",
+    "selected_year": 2026,
+    "prior_year": 2025,
+    "recent_months": 9,
+    "n_train": 20,
+    "train_months": [
+      "01/25",
+      "02/25",
+      "03/25",
+      "04/25",
+      "05/25",
+      "06/25",
+      "07/25",
+      "08/25",
+      "09/25",
+      "10/25",
+      "11/25",
+      "12/25",
+      "01/26",
+      "02/26",
+      "03/26",
+      "04/26",
+      "05/26",
+      "06/26",
+      "07/26",
+      "08/26"
+    ],
+    "caption": "janv.–déc. 2025 et janv.–août 2026"
+  },
+  "sources": [
+    "StatCan 14-10-0287-01 — Québec employment and unemployment, seasonally adjusted",
+    "StatCan 36-10-0434-01 — Canada monthly GDP (Québec has no official monthly GDP)",
+    "StatCan 18-10-0004-01 — Québec CPI, all-items",
+    "StatCan 34-10-0158-01 — Québec housing starts, SAAR",
+    "Bank of Canada Valet — overnight target, 5-year posted mortgage, 5-year GoC bond"
+  ],
+  "features": [
+    "month seasonality",
+    "trend",
+    "lags 1/2/3/12 of the housing series",
+    "Québec employment and unemployment rate",
+    "Canada monthly GDP",
+    "Québec CPI",
+    "Québec housing starts",
+    "overnight rate, 5-year mortgage, 5-year bond (t-1)",
+    "April/May year-over-year ventes (slowing if either month is lower)",
+    "April/May year-over-year median price (volume vs price)"
+  ],
+  "origin": "08/26",
+  "labels": [
+    "09/26",
+    "10/26",
+    "11/26",
+    "12/26",
+    "01/27",
+    "02/27",
+    "03/27",
+    "04/27",
+    "05/27"
+  ],
+  "last_values": {
+    "copropriete": {
+      "ventes": 562.0,
+      "inscriptions": 6789.0,
+      "prix": 475000.0,
+      "jours": 72.0
+    },
+    "plex": {
+      "ventes": 179.0,
+      "inscriptions": 1622.0,
+      "prix": 870000.0,
+      "jours": 54.0
+    }
+  },
+  "economy": {
+    "latest": {
+      "qc_employment": 4588.7,
+      "qc_unemp_rate": 5.6,
+      "ca_gdp": 2369309.0,
+      "qc_cpi": 167.0,
+      "qc_starts": 63.666,
+      "overnight": 2.25,
+      "mortgage_5y": 6.09,
+      "bond_5y": 3.33
+    },
+    "path": [
+      {
+        "label": "09/26",
+        "qc_employment": 4637.779,
+        "qc_unemp_rate": 5.122,
+        "ca_gdp": 2384652.259,
+        "qc_cpi": 167.169,
+        "qc_starts": 58.829,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "10/26",
+        "qc_employment": 4675.362,
+        "qc_unemp_rate": 4.772,
+        "ca_gdp": 2397374.678,
+        "qc_cpi": 167.293,
+        "qc_starts": 56.873,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "11/26",
+        "qc_employment": 4699.86,
+        "qc_unemp_rate": 4.578,
+        "ca_gdp": 2406261.143,
+        "qc_cpi": 167.499,
+        "qc_starts": 56.22,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "12/26",
+        "qc_employment": 4711.182,
+        "qc_unemp_rate": 4.543,
+        "ca_gdp": 2410906.008,
+        "qc_cpi": 167.864,
+        "qc_starts": 56.166,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "01/27",
+        "qc_employment": 4711.785,
+        "qc_unemp_rate": 4.66,
+        "ca_gdp": 2411872.229,
+        "qc_cpi": 168.446,
+        "qc_starts": 55.905,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "02/27",
+        "qc_employment": 4706.532,
+        "qc_unemp_rate": 4.851,
+        "ca_gdp": 2410595.885,
+        "qc_cpi": 169.202,
+        "qc_starts": 56.045,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "03/27",
+        "qc_employment": 4699.946,
+        "qc_unemp_rate": 5.087,
+        "ca_gdp": 2408983.71,
+        "qc_cpi": 170.061,
+        "qc_starts": 56.52,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "04/27",
+        "qc_employment": 4697.686,
+        "qc_unemp_rate": 5.247,
+        "ca_gdp": 2409006.673,
+        "qc_cpi": 170.945,
+        "qc_starts": 56.138,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      },
+      {
+        "label": "05/27",
+        "qc_employment": 4702.767,
+        "qc_unemp_rate": 5.321,
+        "ca_gdp": 2412073.448,
+        "qc_cpi": 171.729,
+        "qc_starts": 55.669,
+        "overnight": 2.25,
+        "mortgage_5y": 6.09,
+        "bond_5y": 3.33
+      }
+    ]
+  },
+  "spring": {
+    "rule": "If April or May ventes are lower than the same month a year earlier, the market is slowing. Compare that volume signal with median price: when sales fall and prices still hold, volume is leading.",
+    "last_year": 2026,
+    "prior_year": 2025,
+    "categories": {
+      "copropriete": {
+        "comparable": true,
+        "slow": true,
+        "april_lower": true,
+        "may_lower": true,
+        "ventes_yoy": -0.0788,
+        "prix_yoy": -0.0035,
+        "price_lag": true,
+        "months": {
+          "april": {
+            "ventes": 972.0,
+            "ventes_prev": 1051.0,
+            "ventes_yoy": -0.0752,
+            "prix": 480000.0,
+            "prix_prev": 475000.0,
+            "prix_yoy": 0.0105,
+            "lower": true
+          },
+          "may": {
+            "ventes": 924.0,
+            "ventes_prev": 1007.0,
+            "ventes_yoy": -0.0824,
+            "prix": 479000.0,
+            "prix_prev": 487531.0,
+            "prix_yoy": -0.0175,
+            "lower": true
+          }
+        },
+        "reading": "Copropriété : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."
+      },
+      "plex": {
+        "comparable": true,
+        "slow": true,
+        "april_lower": true,
+        "may_lower": true,
+        "ventes_yoy": -0.0872,
+        "prix_yoy": 0.0433,
+        "price_lag": true,
+        "months": {
+          "april": {
+            "ventes": 277.0,
+            "ventes_prev": 293.0,
+            "ventes_yoy": -0.0546,
+            "prix": 900000.0,
+            "prix_prev": 860000.0,
+            "prix_yoy": 0.0465,
+            "lower": true
+          },
+          "may": {
+            "ventes": 294.0,
+            "ventes_prev": 334.0,
+            "ventes_yoy": -0.1198,
+            "prix": 908750.0,
+            "prix_prev": 873750.0,
+            "prix_yoy": 0.0401,
+            "lower": true
+          }
+        },
+        "reading": "Plex (2-5) : avril ou mai 2026 plus faible qu’en 2025 — mauvais signe, le marché ralentit. Le prix médian tient encore ou monte : le volume précède le prix, mauvais signe pour la suite."
+      }
+    }
+  }
+}
