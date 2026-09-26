@@ -1,12 +1,20 @@
 # Île de Montréal — 2019 à 2026
 
+National Bank Affordability: https://www.nbc.ca/content/dam/bnc/taux-analyses/analyse-eco/logement/housing-affordability.pdf
+
+Cuvette: https://experience.arcgis.com/experience/944e0b7104bd491591ccca829da24670
+
+Ville: https://spectrum.montreal.ca/connect/analyst/mobile/#/main?mapcfg=-%20Rosemont%E2%80%93La%20Petite-Patrie
+
+Open the report: [ile-montreal.html](https://poboisvert.github.io/apicq/ile-montreal.html)
+
+---
+
 Monthly Centris figures for **Copropriété** and **Plex (2-5 logements)** on the Island of Montreal, extracted from [APCIQ](https://apciq.ca/barometre-residentiel/statistiques-mensuelles/) monthly PDFs.
 
 Four series: ventes totales, inscriptions en vigueur, prix médian, moyenne de jours sur le marché.
 
 ![Dashboard Île de Montréal 2019–2026](docs/ile-montreal.png)
-
-Open the report: [ile-montreal.html](https://poboisvert.github.io/apicq/ile-montreal.html)
 
 Filters: Les deux / Copropriété / Plex, and Chronologie / Fév–août. Chronology charts carry two dotted sklearn forecasts through mai 2027 (année précédente + 3 mois, or année précédente + 9 mois de 2026), using Québec employment, unemployment, CPI and housing starts, Canada monthly GDP, Bank of Canada rates.
 
