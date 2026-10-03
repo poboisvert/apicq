@@ -2,7 +2,7 @@
   "source": "https://apciq.ca/barometre-residentiel/statistiques-mensuelles/",
   "archive": "https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/",
   "region": "Île de Montréal",
-  "generated_at": "2026-09-05T12:55:59.382066+00:00",
+  "generated_at": "2026-10-03T14:46:23.070724+00:00",
   "months": [
     {
       "year": 2019,
@@ -1476,6 +1476,41 @@
     },
     {
       "year": 2023,
+      "month": 3,
+      "label": "Mars 2023",
+      "url": "http://com.apciq.ca/sam/pdf/stats/2023/stats-202303-fr.pdf",
+      "pdf": "202303.pdf",
+      "copropriete": {
+        "ventes": 802,
+        "inscriptions": 4583,
+        "prix": 430000,
+        "jours": 63,
+        "ventes_yoy": null,
+        "inscriptions_yoy": 46.0,
+        "prix_yoy": -6.0,
+        "jours_delta": 19.0,
+        "ventes_ytd": 1784,
+        "inscriptions_ytd": 4288,
+        "prix_ytd": 430000,
+        "jours_ytd": 69
+      },
+      "plex": {
+        "ventes": 194,
+        "inscriptions": 1548,
+        "prix": 761500,
+        "jours": 78,
+        "ventes_yoy": null,
+        "inscriptions_yoy": 36.0,
+        "prix_yoy": -5.0,
+        "jours_delta": 22.0,
+        "ventes_ytd": 428,
+        "inscriptions_ytd": 1469,
+        "prix_ytd": 755000,
+        "jours_ytd": 80
+      }
+    },
+    {
+      "year": 2023,
       "month": 4,
       "label": "Avril 2023",
       "url": "http://com.apciq.ca/sam/pdf/stats/2023/stats-202304-fr.pdf",
@@ -2907,6 +2942,41 @@
         "inscriptions_ytd": 1519,
         "prix_ytd": 905000,
         "jours_ytd": 50
+      }
+    },
+    {
+      "year": 2026,
+      "month": 9,
+      "label": "Septembre 2026",
+      "url": "https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202609-fr.pdf",
+      "pdf": "202609.pdf",
+      "copropriete": {
+        "ventes": 586,
+        "inscriptions": 7043,
+        "prix": 476500,
+        "jours": 73,
+        "ventes_yoy": -9.0,
+        "inscriptions_yoy": 13.0,
+        "prix_yoy": -1.0,
+        "jours_delta": 19.0,
+        "ventes_ytd": 6677,
+        "inscriptions_ytd": 6579,
+        "prix_ytd": 480000,
+        "jours_ytd": 60
+      },
+      "plex": {
+        "ventes": 208,
+        "inscriptions": 1800,
+        "prix": 930000,
+        "jours": 55,
+        "ventes_yoy": -18.0,
+        "inscriptions_yoy": 20.0,
+        "prix_yoy": 5.0,
+        "jours_delta": 6.0,
+        "ventes_ytd": 2094,
+        "inscriptions_ytd": 1549,
+        "prix_ytd": 910000,
+        "jours_ytd": 51
       }
     }
   ]

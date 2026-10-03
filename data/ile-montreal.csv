@@ -83,6 +83,8 @@ year,month,label,category,ventes,ventes_yoy,inscriptions,inscriptions_yoy,prix,p
 2023,1,Janvier 2023,plex,103,-45.0,1398,37.0,740000,-6.0,74,12.0,103,https://com.apciq.ca/sam/pdf/stats/2023/stats-202301-fr.pdf
 2023,2,Février 2023,copropriete,617,,4331,41.0,440000,0.0,67,16.0,983,https://com.apciq.ca/sam/pdf/stats/2023/stats-202302-fr.pdf
 2023,2,Février 2023,plex,133,,1501,42.0,760000,-7.0,88,34.0,236,https://com.apciq.ca/sam/pdf/stats/2023/stats-202302-fr.pdf
+2023,3,Mars 2023,copropriete,802,,4583,46.0,430000,-6.0,63,19.0,1784,http://com.apciq.ca/sam/pdf/stats/2023/stats-202303-fr.pdf
+2023,3,Mars 2023,plex,194,,1548,36.0,761500,-5.0,78,22.0,428,http://com.apciq.ca/sam/pdf/stats/2023/stats-202303-fr.pdf
 2023,4,Avril 2023,copropriete,766,,4683,49.0,440000,-4.0,59,21.0,2547,http://com.apciq.ca/sam/pdf/stats/2023/stats-202304-fr.pdf
 2023,4,Avril 2023,plex,224,,1529,32.0,765000,,73,27.0,652,http://com.apciq.ca/sam/pdf/stats/2023/stats-202304-fr.pdf
 2023,5,Mai 2023,copropriete,982,,4624,37.0,453500,-1.0,60,24.0,3527,http://com.apciq.ca/sam/pdf/stats/2023/stats-cp-fr-mai-2023.pdf
@@ -165,3 +167,5 @@ year,month,label,category,ventes,ventes_yoy,inscriptions,inscriptions_yoy,prix,p
 2026,7,Juillet 2026,plex,229,-14.0,1578,18.0,910000,9.0,48,-9.0,1709,https://apciqca-152af.kxcdn.com/wp-content/uploads/sites/4/2026/08/stats-202607-fr-1.pdf
 2026,8,Août 2026,copropriete,562,-12.0,6789,16.0,475000,0.0,72,17.0,6091,https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202608-fr.pdf
 2026,8,Août 2026,plex,179,-5.0,1622,18.0,870000,-1.0,54,-2.0,1888,https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202608-fr.pdf
+2026,9,Septembre 2026,copropriete,586,-9.0,7043,13.0,476500,-1.0,73,19.0,6677,https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202609-fr.pdf
+2026,9,Septembre 2026,plex,208,-18.0,1800,20.0,930000,5.0,55,6.0,2094,https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202609-fr.pdf
