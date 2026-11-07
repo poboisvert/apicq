@@ -2,7 +2,7 @@
   "source": "https://apciq.ca/barometre-residentiel/statistiques-mensuelles/",
   "archive": "https://apciq.ca/barometre-residentiel/statistiques-mensuelles-archive/",
   "region": "Île de Montréal",
-  "generated_at": "2026-10-03T14:46:23.070724+00:00",
+  "generated_at": "2026-11-07T17:10:45.017546+00:00",
   "months": [
     {
       "year": 2019,
@@ -2976,6 +2976,41 @@
         "ventes_ytd": 2094,
         "inscriptions_ytd": 1549,
         "prix_ytd": 910000,
+        "jours_ytd": 51
+      }
+    },
+    {
+      "year": 2026,
+      "month": 10,
+      "label": "Octobre 2026",
+      "url": "https://comapciqca-152af.kxcdn.com/fsmi-stats/mensuelles/2026/stats-202610-fr.pdf",
+      "pdf": "202610.pdf",
+      "copropriete": {
+        "ventes": 604,
+        "inscriptions": 6972,
+        "prix": 497500,
+        "jours": 64,
+        "ventes_yoy": -21.0,
+        "inscriptions_yoy": 9.0,
+        "prix_yoy": 2.0,
+        "jours_delta": 7.0,
+        "ventes_ytd": 7279,
+        "inscriptions_ytd": 6600,
+        "prix_ytd": 480000,
+        "jours_ytd": 60
+      },
+      "plex": {
+        "ventes": 235,
+        "inscriptions": 1850,
+        "prix": 890000,
+        "jours": 52,
+        "ventes_yoy": -18.0,
+        "inscriptions_yoy": 21.0,
+        "prix_yoy": -1.0,
+        "jours_delta": 0.0,
+        "ventes_ytd": 2327,
+        "inscriptions_ytd": 1576,
+        "prix_ytd": 907500,
         "jours_ytd": 51
       }
     }
